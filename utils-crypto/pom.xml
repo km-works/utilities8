@@ -13,4 +13,10 @@
   <artifactId>utils-crypto</artifactId>
   <packaging>jar</packaging>
     
+    <dependencies>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+    </dependencies>
 </project>
