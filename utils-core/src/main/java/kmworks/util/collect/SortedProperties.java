@@ -31,7 +31,7 @@ public class SortedProperties extends Properties {
     private static final long serialVersionUID = -1L;
 
 	/**
-	 * Standard constructor for creating a sorted properties.
+	 * Standard constructor for creating sorted properties.
 	 */
 	public SortedProperties() {
 		super();

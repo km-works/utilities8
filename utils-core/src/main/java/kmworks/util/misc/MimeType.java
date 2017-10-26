@@ -1,5 +1,5 @@
 /*
- *   Copyright (C) 2012 Christian P. Lerch, Vienna, Austria.
+ *   Copyright (C) 2012-2017 Christian P. Lerch, Vienna, Austria.
  *
  *   This file is part of kmworks-util - a versatile Java utilites library.
  *
@@ -20,34 +20,38 @@ package kmworks.util.misc;
 
 import kmworks.util.StringUtil;
 import java.io.IOException;
-import java.util.Properties;
+import javax.annotation.Nonnull;
+import kmworks.util.config.PropertyMap;
+import kmworks.util.config.PropertyMapConverter;
 
 /**
  *
- * * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * * @author Christian P. Lerch
  */
 public final class MimeType {
 
-  private static final Properties Ext_MimeType_Map = loadMimeTypes();
+    private static final PropertyMap Ext_MimeType_Map = loadMimeTypes();
 
-  private MimeType() { // prevent instantiation
-  }
-
-  public static String fromFileName(final String fileName) {
-    final String ext = StringUtil.getFileExt(fileName);
-    if (ext == null) {
-      return null;
+    private MimeType() { // prevent instantiation
     }
-    final String mimeType = Ext_MimeType_Map.getProperty(ext, null);
-    return mimeType;
-  }
 
-  private static Properties loadMimeTypes() {
-    final Properties result = new Properties();
-    try {
-      result.load(MimeType.class.getClassLoader().getResourceAsStream("mime-types.properties"));
-    } catch (IOException ex) { /* SKIP */ }
-    return result;
-  }
+    public static String fromFileName(@Nonnull final String fileName) {
+        final String ext = StringUtil.getFileExt(fileName);
+        if (ext == null) {
+            return null;
+        }
+        final String mimeType = Ext_MimeType_Map.getOrElse(ext, null);
+        return mimeType;
+    }
+
+    private static PropertyMap loadMimeTypes() {
+        
+        java.util.Properties result = new java.util.Properties();
+        try {
+            result.load(MimeType.class.getClassLoader().getResourceAsStream("mime-types.properties"));
+        } catch (IOException ex) {
+            /* SHOULD NOT HAPPEN */
+        }
+        return PropertyMapConverter.fromProperties(result);
+    }
 }
-

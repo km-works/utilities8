@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
  */
+@FunctionalInterface
 public interface Function1<T, R> extends com.google.common.base.Function<T, R> {
   
   /**

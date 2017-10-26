@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
  * An arbitrary piece of code that returns a value of the type R.
  * 
  */
+@FunctionalInterface
 public interface Function0<R> {
   
   @Nullable R apply();

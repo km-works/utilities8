@@ -14,11 +14,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.base;
+package kmworks.util;
 
 import java.io.Serializable;
 import java.util.Comparator;
 import kmworks.util.ObjectUtil;
+import kmworks.util.base.TotalOrder;
 
 /**
  *
@@ -55,7 +56,7 @@ public final class CompareUtil {
   
   /** Wrap a Comparator as a TotalOrder. */
   public static <T> TotalOrder<T> asTotalOrder(Comparator<? super T> comp) {
-    return new ComparatorTotalOrder<T>(comp);
+    return new ComparatorTotalOrder<>(comp);
   }
   
   private static final class ComparatorTotalOrder<T> extends TotalOrder<T> {

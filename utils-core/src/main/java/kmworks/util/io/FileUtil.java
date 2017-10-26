@@ -14,7 +14,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util;
+package kmworks.util.io;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.common.hash.Hasher;
@@ -31,7 +31,9 @@ import javax.annotation.Nonnull;
  *
  * @author Christian P. Lerch
  */
-public class FileUtil {
+public final class FileUtil {
+    
+    private FileUtil() {}
     
     public static final String PATH_ELEM_SEP = File.pathSeparator;
 
@@ -89,15 +91,20 @@ public class FileUtil {
         checkNotNull(rootDir);
         if (rootDir.isDirectory()) {
             for (File f : Files.fileTreeTraverser().children(rootDir)) {
-                if (f.isDirectory()) {
+                /*  com.​google.​common.​io.​Files.fileTreeTraverser()
+                    Warning: File provides no support for symbolic links, and as such there is no way to ensure that a 
+                    symbolic link to a directory is not followed when traversing the tree. In this case, iterables created 
+                    by this traverser could contain files that are outside of the given directory or even be infinite 
+                    if there is a symbolic link loop. */
+                if (f.isDirectory() && !java.nio.file.Files.isSymbolicLink(rootDir.toPath())) {
                     deleteDirTree(f);
                 } else {
                     boolean rc = f.delete();
                     //assert(rc);
                 }
             }
+            rootDir.delete();
         }
-        rootDir.delete();
     }
 
 }

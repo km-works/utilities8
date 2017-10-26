@@ -16,8 +16,12 @@
  */
 package kmworks.util;
 
+import static com.google.common.base.Preconditions.*;
+import com.google.common.collect.ImmutableMap;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.text.CharacterIterator;
@@ -31,21 +35,23 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Properties;
+//import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import kmworks.util.misc.Base64Utils;
 import static kmworks.util.StringPool.*;
+//import kmworks.util.config.property.PropertyMap;
 import kmworks.util.lambda.Function1;
+import kmworks.util.misc.Base64Utils;
 
 /**
  * km-works static utility methods pertaining to {@code String} or {@code CharSequence}. Except when annotated with
  * {@code @Nullable}, none of these methods will ever return a {@code null} value.
  *
- * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * @author Christian P. Lerch
  * @version 1.0.0
  * @since 1.0
  */
@@ -62,100 +68,70 @@ public final class StringUtil {
      * {@link String#isEmpty()} instead of this method, and you won't need special null-safe forms of methods like {@link
      * String#toUpperCase} either.
      *
-     * @param str the CharSequence reference to check (may be {@code null})
+     * @param cs the CharSequence reference to check (may be {@code null})
      * @return {@code true} if the CharSequence is null or is the empty string
      */
-    public static boolean isNullOrEmpty(@Nullable final CharSequence str) {
-        return str == null || str.length() == 0;
+    public static boolean isNullOrEmpty(@Nullable final CharSequence cs) {
+        return cs == null || cs.length() == 0;
     }
 
-    public static boolean isNullOrEmpty(@Nullable final String str) {
-        return isNullOrEmpty((CharSequence) str);
-    }
-
-    @Deprecated
-    public static boolean isEmpty(final String str) {
-        return isNullOrEmpty(str);
-    }
-
-    public static boolean hasLength(@Nullable final CharSequence str) {
-        return !isNullOrEmpty(str);
-    }
-
-    public static boolean hasLength(@Nullable final String str) {
-        return !isNullOrEmpty(str);
+    public static boolean hasLength(@Nullable final CharSequence cs) {
+        return !isNullOrEmpty(cs);
     }
 
     /**
-     * Checks whether the given CharSequence is not null and contains any non-whitespace characters. Examples:
+     * Checks whether the given CharSequence is not null or empty and contains any non-whitespace characters. Examples:
      * <p>
      * <pre class="code">
      * StringUtils.hasText(null) = false StringUtils.hasText("") = false StringUtils.hasText(" ") = false
      * StringUtils.hasText("12345") = true StringUtils.hasText(" 12345 ") = true
      * </pre>
      *
-     * @param str the CharSequence to check (may be {@code null})
+     * @param cs the CharSequence to check (may be {@code null})
      * @return {@code true} if the CharSequence is not {@code null}, its length is greater than 0, and it does not
      * solely contain whitespace characters
      * @see Character#isWhitespace
      */
-    public static boolean hasText(@Nullable CharSequence str) {
-        if (!isNullOrEmpty(str)) {
-            for (int i = 0; i < str.length(); i++) {
-                if (!Character.isWhitespace(str.charAt(i))) {
+    public static boolean hasText(@Nullable CharSequence cs) {
+        if (!isNullOrEmpty(cs)) {
+            assert cs != null;
+            for (int i = 0; i < cs.length(); i++) {
+                if (!Character.isWhitespace(cs.charAt(i))) {
                     return true;
                 }
             }
         }
         return false;
     }
-
-    public static boolean hasText(@Nullable String str) {
-        return hasText((CharSequence) str);
-    }
-
     /**
      * Checks whether the given CharSequence is null or contains only whitespace characters.
      *
-     * @param str
+     * @param cs
      * @return
      */
-    public static boolean isNullOrBlank(@Nullable final CharSequence str) {
-        return !hasText(str);
+    public static boolean isNullOrBlank(@Nullable final CharSequence cs) {
+        return !hasText(cs);
     }
-
-    public static boolean isNullOrBlank(@Nullable final String str) {
-        return isNullOrBlank((CharSequence) str);
-    }
-
     /**
      * Returns the given CharSequence if it is non-null; the empty CharSequence otherwise.
      *
-     * @param str the CharSequence to test and possibly return
+     * @param cs the CharSequence to test and possibly return
      * @return {@code str} itself if it is non-null; {@code (CharSequence) ""} if it is null
      */
-    public static CharSequence nullToEmpty(@Nullable final CharSequence str) {
-        return (str == null) ? (CharSequence) EMPTY_STRING : str;
-    }
-
-    public static String nullToEmpty(@Nullable final String str) {
-        return (str == null) ? EMPTY_STRING : str;
+    @Nonnull
+    public static String nullToEmpty(@Nullable final CharSequence cs) {
+        return (cs == null) ? EMPTY_STRING : cs.toString();
     }
 
     /**
      * Returns the given CharSequence if it is nonempty; {@code null} otherwise.
      *
-     * @param str the CharSequence to test and possibly return
+     * @param cs the CharSequence to test and possibly return
      * @return {@code str} itself if it is nonempty; {@code null} if it is empty or null
      */
     @Nullable
-    public static CharSequence emptyToNull(@Nullable final CharSequence str) {
-        return isNullOrEmpty(str) ? null : str;
-    }
-
-    @Nullable
-    public static String emptyToNull(@Nullable final String str) {
-        return isNullOrEmpty(str) ? null : str;
+    public static String emptyToNull(@Nullable final CharSequence cs) {
+        return isNullOrEmpty(cs) ? null : cs.toString();
     }
 
     /**
@@ -165,14 +141,15 @@ public final class StringUtil {
      * @param defaultValue
      * @return
      */
-    public static CharSequence nvl(@Nullable final CharSequence str, @Nullable final CharSequence defaultValue) {
+    @Nonnull
+    public static String nvl(@Nullable final CharSequence str, @Nullable final CharSequence defaultValue) {
         return !isNullOrEmpty(str) ? nullToEmpty(str) : nullToEmpty(defaultValue);
     }
 
-    public static String nvl(@Nullable final String string, @Nullable final String defaultValue) {
-        return !isNullOrEmpty(string) ? nullToEmpty(string) : nullToEmpty(defaultValue);
+    public static String trim(@Nullable String s) {
+        return s == null ? null : s.trim();
     }
-
+    
     /**
      * Returns a new string that is a substring of the given string. The substring begins with the character at the
      * specified beginIdx, but measured in reverse from the end of this string, extending to the end of this string.
@@ -204,13 +181,15 @@ public final class StringUtil {
     }
 
     public static int countNewlines(@Nullable final String str) {
-        return countOccurencesOf(str, "\n");
+        return countOccurencesOf(str, NEWLINE);
     }
 
     public static int countOccurencesOf(@Nullable final String str, @Nullable final String sub) {
-        if (str == null || sub == null || str.length() == 0 || sub.length() == 0) {
+        if (isNullOrEmpty(str) || isNullOrEmpty(sub)) {
             return 0;
         }
+        assert str != null;
+        assert sub != null;
         int count = 0, pos = 0, idx;
         while ((idx = str.indexOf(sub, pos)) != -1) {
             ++count;
@@ -220,7 +199,7 @@ public final class StringUtil {
     }
 
     /**
-     * Delete any character in a given String.
+     * Delete any given character in a String.
      *
      * @param inString the original String
      * @param charsToDelete a set of characters to delete. E.g. "az\n" will delete 'a's, 'z's and new lines.
@@ -249,10 +228,11 @@ public final class StringUtil {
         return nullToEmpty(org.apache.commons.lang3.StringEscapeUtils.escapeJava(str));
     }
 
-    public static String unescapeJava(final String str) {
+    public static String unescapeJava(@Nullable final String str) {
         return nullToEmpty(org.apache.commons.lang3.StringEscapeUtils.unescapeJava(str));
     }
 
+    
     /** Translates a string into application/x-www-form-urlencoded format. 
      * This method uses the UTF-8 encoding scheme to obtain the bytes for unsafe characters.
      * Note: The World Wide Web Consortium Recommendation states that UTF-8 should be used. 
@@ -264,7 +244,7 @@ public final class StringUtil {
     public static String escapeURI(@Nullable final String str) {
         String result = null;
         try {
-            result = URLEncoder.encode(str, "UTF-8");
+            result = URLEncoder.encode(str, UTF8_STRING);
         } catch (UnsupportedEncodingException ex) { /* cannot happen */ }
         return nullToEmpty(result);
     }
@@ -294,16 +274,15 @@ public final class StringUtil {
      * incompatibilites.</em>
      *
      * @param str the <code>String</code> to decode
-     * @param enc The name of a supported
-     * <a href="../lang/package-summary.html#charenc">character encoding</a>.
+     * @param enc The name of a supported character encoding
      * @return the newly decoded <code>String</code>
      * @exception UnsupportedEncodingException If character encoding needs to be consulted, but named character encoding
      * is not supported
      * @see URLEncoder#encode(java.lang.String, java.lang.String)
-     * @since 1.0
      */
     @Nullable 
-    private static String decodeURL(@Nullable String str, Charset charSet) {
+    private static String decodeURL(@Nonnull String str, Charset charSet) {
+        checkNotNull(str);
 
         boolean needToChange = false;
         int numChars = str.length();
@@ -320,7 +299,7 @@ public final class StringUtil {
                     i++;
                     needToChange = true;
                     break;
-                case '%':
+                case PERCENT_CH:
                     /*
            * Starting with this instance of %, process all
            * consecutive substrings of the form %xy. Each
@@ -337,7 +316,7 @@ public final class StringUtil {
                         }
                         int pos = 0;
 
-                        while (((i + 2) < numChars) && (c == '%')) {
+                        while (((i + 2) < numChars) && (c == PERCENT_CH)) {
                             int v = Integer.parseInt(str.substring(i + 1, i + 3), 16);
                             if (v < 0) {
                                 throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
@@ -350,7 +329,7 @@ public final class StringUtil {
                         }
                         // A trailing, incomplete byte encoding such as
                         // "%x" will cause an exception to be thrown
-                        if ((i < numChars) && (c == '%')) {
+                        if ((i < numChars) && (c == PERCENT_CH)) {
                             throw new IllegalArgumentException(
                                     "URLDecoder: Incomplete trailing escape (%) pattern");
                         }
@@ -387,12 +366,8 @@ public final class StringUtil {
         return new String(Base64Utils.decodeFast(base64String), charSet);
     }
 
-    public static String toUTF8(String s) {
-        try {
-            return new String(s.getBytes("ISO-8859-1"), "UTF-8");
-        } catch (UnsupportedEncodingException ex) {
-            return s;
-        }
+    public static String encodeUTF8(String s) {
+        return new String(StandardCharsets.UTF_8.encode(s).array());
     }
 
 
@@ -400,7 +375,7 @@ public final class StringUtil {
    * Join a list of strings into a single string
      */
     public static String join(final Iterable<String> sl) {
-        return join(sl, "");
+        return join(sl, EMPTY_STRING);
     }
 
     public static String join(final Iterable<String> sl, final String sep) {
@@ -428,20 +403,6 @@ public final class StringUtil {
         } else {
             return list + (isNullOrEmpty(sep) ? COMMA : sep) + item;
         }
-    }
-
-    public static boolean isInteger(final String valStr) {
-        final String val = valStr.trim();
-        if (isNullOrEmpty(val)) {
-            return false;
-        }
-        Integer intVal;
-        try {
-            intVal = Integer.parseInt(val);
-        } catch (NumberFormatException e) {
-            intVal = null;
-        }
-        return intVal != null;
     }
 
     public static String fmtIntegerZeroPadded(final int number, final int digits) {
@@ -498,9 +459,9 @@ public final class StringUtil {
     public static String removeQuotes(final String text) {
         String result;
         int len = 0;
-        if (text.startsWith(DQ) && text.endsWith(DQ)) {
+        if (text.startsWith(DQUOTE) && text.endsWith(DQUOTE)) {
             len = 1;
-        } else if (text.startsWith(SQ) && text.endsWith(SQ)) {
+        } else if (text.startsWith(SQUOTE) && text.endsWith(SQUOTE)) {
             len = 1;
         } else if (text.startsWith("&quot;") && text.endsWith("&quot;")) {
             len = 6;
@@ -518,7 +479,7 @@ public final class StringUtil {
     }
 
     public static String sqlEscSQ(final String sqlString) {
-        final String result = sqlString.replaceAll(SQ, "''");
+        final String result = sqlString.replaceAll(SQUOTE, "''");
         return result;
     }
 
@@ -542,8 +503,8 @@ public final class StringUtil {
         result = result.replaceAll("\\*", "_");
         result = result.replaceAll("\\?", "_");
         result = result.replaceAll("\\+", "_");
-        result = result.replaceAll(DQ, "_");
-        result = result.replaceAll(SQ, "_");
+        result = result.replaceAll(DQUOTE, "_");
+        result = result.replaceAll(SQUOTE, "_");
         result = result.replaceAll("<", "_");
         result = result.replaceAll(">", "_");
         /*
@@ -727,8 +688,8 @@ public final class StringUtil {
         return new String[]{beforeDelimiter, afterDelimiter};
     }
 
-    /**
-     * Take an array Strings and split each element based on the given delimiter. A {@code Properties} instance is then
+    /*
+     * Take an array of Strings and split each element based on the given delimiter. A {@code Properties} instance is then
      * generated, with the left of the delimiter providing the key, and the right of the delimiter providing the value.
      * <p>
      * Will trim both the key and value before adding them to the {@code Properties} instance.
@@ -737,12 +698,12 @@ public final class StringUtil {
      * @param delimiter to split each element using (typically the equals symbol)
      * @return a {@code Properties} instance representing the array contents, or {@code null} if the array to process
      * was null or empty
-     */
-    public static Properties splitArrayElementsIntoProperties(String[] array, String delimiter) {
+     *
+    public static PropertyMap splitArrayElementsIntoProperties(String[] array, String delimiter) {
         return splitArrayElementsIntoProperties(array, delimiter, null);
     }
 
-    /**
+    /*
      * Take an array Strings and split each element based on the given delimiter. A {@code Properties} instance is then
      * generated, with the left of the delimiter providing the key, and the right of the delimiter providing the value.
      * <p>
@@ -754,14 +715,13 @@ public final class StringUtil {
      * (typically the quotation mark symbol), or {@code null} if no removal should occur
      * @return a {@code Properties} instance representing the array contents, or {@code null} if the array to process
      * was {@code null} or empty
-     */
-    public static Properties splitArrayElementsIntoProperties(
-            String[] array, String delimiter, String charsToDelete) {
+     *
+    public static PropertyMap splitArrayElementsIntoProperties(String[] array, String delimiter, String charsToDelete) {
 
         if (ArrayUtil.isNullOrEmpty(array)) {
             return null;
         }
-        Properties result = new Properties();
+        ImmutableMap.Builder<String, String> builder = new ImmutableMap.Builder<>();
         for (String element : array) {
             if (charsToDelete != null) {
                 element = deleteAny(element, charsToDelete);
@@ -770,10 +730,11 @@ public final class StringUtil {
             if (splittedElement == null) {
                 continue;
             }
-            result.setProperty(splittedElement[0].trim(), splittedElement[1].trim());
+            builder.put(splittedElement[0].trim(), splittedElement[1].trim());
         }
-        return result;
+        return PropertyMap.of(builder.build());
     }
+    */
 
     /**
      * Tokenize the given String into a String array via a StringTokenizer. Trims tokens and omits empty tokens.
@@ -788,7 +749,7 @@ public final class StringUtil {
      * @return an array of the tokens
      * @see java.util.StringTokenizer
      * @see String#trim()
-     * @see #delimitedListToStringArray
+     * @see #csvToArray
      */
     public static String[] tokenizeToStringArray(String str, String delimiters) {
         return tokenizeToStringArray(str, delimiters, true, true);
@@ -810,7 +771,7 @@ public final class StringUtil {
      * @return an array of the tokens ({@code null} if the input String was {@code null})
      * @see java.util.StringTokenizer
      * @see String#trim()
-     * @see #delimitedListToStringArray
+     * @see #csvToArray
      */
     public static String[] tokenizeToStringArray(
             String str, String delimiters, boolean trimTokens, boolean ignoreEmptyTokens) {
@@ -844,8 +805,8 @@ public final class StringUtil {
      * @return an array of the tokens in the list
      * @see #tokenizeToStringArray
      */
-    public static String[] delimitedListToStringArray(String str, String delimiter) {
-        return delimitedListToStringArray(str, delimiter, null);
+    public static String[] csvToArray(String str, String delimiter) {
+        return StringUtil.csvToArray(str, delimiter, null);
     }
 
     /**
@@ -862,7 +823,7 @@ public final class StringUtil {
      * @return an array of the tokens in the list
      * @see #tokenizeToStringArray
      */
-    public static String[] delimitedListToStringArray(String str, String delimiter, String charsToDelete) {
+    public static String[] csvToArray(String str, String delimiter, String charsToDelete) {
         if (str == null) {
             return new String[0];
         }
@@ -870,7 +831,7 @@ public final class StringUtil {
             return new String[]{str};
         }
         List<String> result = new ArrayList<>();
-        if ("".equals(delimiter)) {
+        if (EMPTY_STRING.equals(delimiter)) {
             for (int i = 0; i < str.length(); i++) {
                 result.add(deleteAny(str.substring(i, i + 1), charsToDelete));
             }
@@ -895,8 +856,8 @@ public final class StringUtil {
      * @param str the input String
      * @return an array of Strings, or the empty array in case of empty input
      */
-    public static String[] commaDelimitedListToStringArray(String str) {
-        return delimitedListToStringArray(str, ",");
+    public static String[] csvToArray(String str) {
+        return csvToArray(str, COMMA);
     }
 
     /**
@@ -905,9 +866,9 @@ public final class StringUtil {
      * @param str the input String
      * @return a Set of String entries in the list
      */
-    public static Set<String> commaDelimitedListToSet(String str) {
+    public static Set<String> csvToSet(String str) {
         Set<String> set = new TreeSet<>();
-        String[] tokens = commaDelimitedListToStringArray(str);
+        String[] tokens = StringUtil.csvToArray(str);
         set.addAll(Arrays.asList(tokens));
         return set;
     }
@@ -922,9 +883,9 @@ public final class StringUtil {
      * @param suffix the String to end each element with
      * @return the delimited String
      */
-    public static String collectionToDelimitedString(Collection<?> coll, String delim, String prefix, String suffix) {
+    public static String collectionToCsv(Collection<?> coll, String delim, String prefix, String suffix) {
         if (coll.isEmpty()) {
-            return "";
+            return EMPTY_STRING;
         }
         StringBuilder sb = new StringBuilder();
         Iterator<?> it = coll.iterator();
@@ -945,8 +906,8 @@ public final class StringUtil {
      * @param delim the delimiter to use (probably a ",")
      * @return the delimited String
      */
-    public static String collectionToDelimitedString(Collection<?> coll, String delim) {
-        return collectionToDelimitedString(coll, delim, "", "");
+    public static String collectionToCsv(Collection<?> coll, String delim) {
+        return StringUtil.collectionToCsv(coll, delim, EMPTY_STRING, EMPTY_STRING);
     }
 
     /**
@@ -955,8 +916,8 @@ public final class StringUtil {
      * @param coll the Collection to display
      * @return the delimited String
      */
-    public static String collectionToCommaDelimitedString(Collection<?> coll) {
-        return collectionToDelimitedString(coll, ",");
+    public static String collectionToCsv(Collection<?> coll) {
+        return StringUtil.collectionToCsv(coll, COMMA);
     }
 
     /**
@@ -967,12 +928,12 @@ public final class StringUtil {
      * @param delim the delimiter to use (probably a ",")
      * @return the delimited String
      */
-    public static String arrayToDelimitedString(Object[] arr, String delim) {
+    public static String arrayToCsv(Object[] arr, String delim) {
         if (ArrayUtil.isNullOrEmpty(arr)) {
-            return "";
+            return EMPTY_STRING;
         }
         if (arr.length == 1) {
-            return arr[0] == null ? "null" : arr[0].toString();
+            return arr[0] == null ? NULL_STRING : arr[0].toString();
         }
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < arr.length; i++) {
@@ -990,24 +951,93 @@ public final class StringUtil {
      * @param arr the array to display
      * @return the delimited String
      */
-    public static String arrayToCommaDelimitedString(Object[] arr) {
-        return arrayToDelimitedString(arr, ",");
+    public static String arrayToCsv(Object[] arr) {
+        return StringUtil.arrayToCsv(arr, COMMA);
     }
 
-    public static String getFileExt(final String fileName) {
+    public static @Nullable String getFileExt(@Nullable final String fileName) {
         if (isNullOrEmpty(fileName)) {
             return null;
         }
-        final int pos = fileName.lastIndexOf('.');
-        return (pos < 0 ? "" : fileName.substring(pos + 1));
+        assert fileName != null;
+        final int pos = fileName.lastIndexOf(DOT_CH);
+        return (pos <= 0 ? null : fileName.substring(pos + 1));
     }
 
-    public static String stripFileExt(final String fileName) {
-        if (fileName == null || fileName.length() == 0) {
+    public static @Nullable String stripFileExt(@Nullable final String fileName) {
+        if (isNullOrEmpty(fileName)) {
             return null;
         }
-        final int pos = fileName.lastIndexOf('.');
-        return (pos < 0 ? null : fileName.substring(0, pos));
+        assert fileName != null;
+        final int pos = fileName.lastIndexOf(DOT_CH);
+        return (pos < 0 ? fileName : fileName.substring(0, pos));
+    }
+    
+    /**
+     * Convert a String to or from various other representations
+     */
+    public static class Convert {
+        
+        public static ByteBuffer toByteBuffer(String s, Charset charset) {
+            return ByteBuffer.wrap(s.getBytes(charset));
+        }
+    
+        public static CharBuffer toCharBuffer(String s, Charset charset) {
+            return toByteBuffer(s, charset).asCharBuffer();
+        }
+    
+        public static String fromByteBuffer(ByteBuffer buffer, Charset charset) {
+            byte[] bytes;
+            if (buffer.hasArray()) {
+                bytes = buffer.array();
+            } else {
+                bytes = new byte[buffer.remaining()];
+                buffer.get(bytes);
+            }
+            return new String(bytes, charset);
+        }
+        
+        /**
+         * Null-tolerant conversion to lower case.
+         * @param s String value or null
+         * @return String value converted to lower case or null
+         */
+        public static @Nullable String toLower(@Nullable final String s) {
+            return s == null ? null : s.toLowerCase();
+        }
+        
+        /**
+         * Null-tolerant, case-insensitive conversion to Boolean. The following string values are all mapped to true:
+         * "true", "1", "y", "yes", "on"
+         * @param s String value to be converted to boolean or null
+         * @return Boolean value or null
+         */
+        public static boolean toBoolean(@Nullable final String s) {
+            final String str = toLower(s);
+            if (str == null) return false;
+            try {
+                return Boolean.valueOf(str);
+            } catch (Exception ex) {
+                return str.equals("1") || str.equals("y") || str.equals("on") || str.equals("yes");
+            }
+        }
+        
+        /**
+         * Null-tolerant conversion to Integer.
+         * @param s String value to be converted to Integer or null
+         * @return Integer value, if s can be parsed, or null otherwise
+         */
+        public static @Nullable Integer toInteger(@Nullable final String s) {
+            try {
+                return Integer.valueOf(s);
+            } catch (NumberFormatException ex) {
+                return null;
+            }
+        }
+        
+        public static boolean isInteger(final String s) {
+            return toInteger(s) != null;
+        }
     }
 
 }

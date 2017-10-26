@@ -20,7 +20,7 @@ import java.io.Serializable;
 import java.util.Comparator;
 import javax.annotation.Nullable;
 import kmworks.util.ObjectUtil;
-import kmworks.util.base.CompareUtil;
+import kmworks.util.CompareUtil;
 import kmworks.util.base.TotalOrder;
 
 /**

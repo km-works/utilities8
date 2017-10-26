@@ -20,6 +20,8 @@
         <module>utils-crypto</module>
         <module>utils-more</module>
         <module>utils-xml</module>
+        <module>utils-fs</module>
+        <module>utils-persist</module>
     </modules>
     
     <dependencies>

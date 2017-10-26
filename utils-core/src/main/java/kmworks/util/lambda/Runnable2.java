@@ -19,7 +19,12 @@ package kmworks.util.lambda;
 /**
  *
  * @author Christian P. Lerch
+ * @param <T1>
+ * @param <T2>
  */
+@FunctionalInterface
 public interface Runnable2<T1, T2> {
+    
   void run(T1 arg1, T2 arg2);
+  
 }

@@ -22,6 +22,7 @@ import javax.annotation.Nullable;
  *
  * @author Christian P. Lerch
  */
+@FunctionalInterface
 public interface Predicate2<T1, T2> {
   
   boolean test(@Nullable T1 arg1, @Nullable T2 arg2);

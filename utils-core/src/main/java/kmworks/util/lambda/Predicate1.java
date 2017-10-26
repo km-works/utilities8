@@ -23,6 +23,7 @@ import javax.annotation.Nullable;
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
  * @param <T1>
  */
+@FunctionalInterface
 public interface Predicate1<T1> {
   
   /**
