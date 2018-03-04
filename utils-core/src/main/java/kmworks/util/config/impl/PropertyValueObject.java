@@ -48,6 +48,8 @@ public class PropertyValueObject extends AbstractPropertyValue implements Map<St
                 propVal = PropertyValueFactory.mkNullValue();
             } else if (entryVal instanceof Boolean) {
                 propVal = PropertyValueFactory.mkBooleanValue((boolean) entryVal);
+            } else if (entryVal instanceof Number) {
+                propVal = PropertyValueFactory.mkNumberValue((Number) entryVal);
             } else if (entryVal instanceof String) {
                 propVal = PropertyValueFactory.mkStringValue((String) entryVal);
             } else {

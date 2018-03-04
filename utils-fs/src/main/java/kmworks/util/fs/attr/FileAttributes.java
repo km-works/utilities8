@@ -14,24 +14,37 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.config;
+package kmworks.util.fs.attr;
 
-import java.io.StringReader;
-import kmworks.util.parsing.ParseError;
-import kmworks.util.parsing.ParseResult;
-import kmworks.util.parsing.SemanticValue;
-import kmworks.util.parsing.SimpleParserState;
+import java.nio.file.Path;
+import java.util.Map;
+import java.util.Set;
 
 /**
  *
  * @author cpl
  */
-public class PropertyValueJsonParser {
+public interface FileAttributes {
 
-    private final SimpleParserState ps;
-
-    public PropertyValueJsonParser(String source) {
-        ps = new SimpleParserState(new StringReader(source), source.length());
+    static FileAttributes of(Path path) {
+        if (path.toFile().isFile()) {
+            return new FileAttributesImpl(path);
+        } else {
+            return new DirAttributesImpl(path);
+        }
     }
 
+    boolean exists(String key);
+
+    Set<String> keys();
+    
+    Set<Map.Entry<String, FileAttr>> entries();
+
+    void delete(String key);
+
+    String get(String key);
+
+    void set(String key, String value);
+
+    void close();
 }

@@ -36,6 +36,11 @@ public final class FileUtil {
     private FileUtil() {}
     
     public static final String PATH_ELEM_SEP = File.pathSeparator;
+    
+    public static String stripExtension(@Nonnull final String fileName) {
+        final int pos = fileName.lastIndexOf('.');
+        return pos<=0 ? fileName : fileName.substring(0, pos);
+    }
 
     public static File createTempDir() {
         return Files.createTempDir();
@@ -87,24 +92,13 @@ public final class FileUtil {
         }
     }
 
-    public static void deleteDirTree(@Nonnull File rootDir) {
-        checkNotNull(rootDir);
-        if (rootDir.isDirectory()) {
-            for (File f : Files.fileTreeTraverser().children(rootDir)) {
-                /*  com.​google.​common.​io.​Files.fileTreeTraverser()
-                    Warning: File provides no support for symbolic links, and as such there is no way to ensure that a 
-                    symbolic link to a directory is not followed when traversing the tree. In this case, iterables created 
-                    by this traverser could contain files that are outside of the given directory or even be infinite 
-                    if there is a symbolic link loop. */
-                if (f.isDirectory() && !java.nio.file.Files.isSymbolicLink(rootDir.toPath())) {
-                    deleteDirTree(f);
-                } else {
-                    boolean rc = f.delete();
-                    //assert(rc);
-                }
-            }
-            rootDir.delete();
+    public static boolean deleteDirTree(@Nonnull File rootDirOrFile) {
+        checkNotNull(rootDirOrFile);
+        for (File f : Files.fileTraverser().depthFirstPostOrder(rootDirOrFile)) {
+            final boolean rc = f.delete();
+            if (!rc) return false;
         }
+        return true;
     }
 
 }

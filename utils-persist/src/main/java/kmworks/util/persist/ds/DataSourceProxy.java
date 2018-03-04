@@ -44,7 +44,7 @@ public final class DataSourceProxy implements DataSource {
 
     @Override
     public Connection getConnection(@Nonnull final String username, @Nonnull final String password) throws SQLException {
-        return ds.getConnection();
+        return ds.getConnection(username, password);
     }
 
     @Override
@@ -58,13 +58,13 @@ public final class DataSourceProxy implements DataSource {
     }
 
     @Override
-    public void setLoginTimeout(int seconds) throws SQLException {
-        ds.setLoginTimeout(seconds);
+    public int getLoginTimeout() throws SQLException {
+        return ds.getLoginTimeout();
     }
 
     @Override
-    public int getLoginTimeout() throws SQLException {
-        return ds.getLoginTimeout();
+    public void setLoginTimeout(int seconds) throws SQLException {
+        ds.setLoginTimeout(seconds);
     }
 
     @Override

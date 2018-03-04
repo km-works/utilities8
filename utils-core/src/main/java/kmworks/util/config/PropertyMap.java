@@ -27,9 +27,9 @@ public final class PropertyMap implements Serializable {
         this.properties = value;
     }
     
-    private PropertyMap(@Nonnull final Iterable<Map.Entry<String, ? extends Object>> mapEntries) {
+    private PropertyMap(@Nonnull final Iterable<Map.Entry<String, ?>> mapEntries) {
         final ImmutableMap.Builder<String,Object> builder = new ImmutableMap.Builder();
-        for (Map.Entry<String, ? extends Object> kv : mapEntries) {
+        for (Map.Entry<String, ?> kv : mapEntries) {
             if (kv != null && kv.getKey() != null) { // ignore null entries and entries with key == null
                 builder.put(kv.getKey(), kv.getValue());
             }
@@ -37,17 +37,12 @@ public final class PropertyMap implements Serializable {
         properties = new PropertyValueObject(builder.build());
     }
     
-    public static PropertyMap of(@Nonnull final Map<String, ? extends Object> map) {
+    public static PropertyMap of(@Nonnull final Map<String, ?> map) {
         checkNotNull(map);
         return of((Iterable)map.entrySet());
     }
-    /*
-    public static PropertyMap of(@Nonnull final Map.Entry<String, ? extends Object>... mapEntries) {
-        checkNotNull(mapEntries);
-        return of(Arrays.asList(mapEntries));
-    }
-    */
-    public static PropertyMap of(@Nonnull final Iterable<Map.Entry<String, ? extends Object>> entrySet) {
+
+    public static PropertyMap of(@Nonnull final Iterable<Map.Entry<String, ?>> entrySet) {
         checkNotNull(entrySet);
         return new PropertyMap(entrySet);
     }
@@ -61,7 +56,7 @@ public final class PropertyMap implements Serializable {
         return new PropertyMap();
     }
     
-    public static Map.Entry<String, ? extends Object> kv(@Nonnull final String k, @Nonnull final Object v) {
+    public static Map.Entry<String, ?> kv(@Nonnull final String k, @Nonnull final Object v) {
         checkNotNull(k);
         checkNotNull(v);
         return new AbstractMap.SimpleImmutableEntry<>(k, v);

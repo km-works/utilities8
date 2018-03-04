@@ -14,39 +14,31 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.config.impl;
-
-import java.io.Serializable;
-import kmworks.util.StringEscapeUtil;
-import kmworks.util.StringPool;
-import kmworks.util.config.PropertyValueType;
+package kmworks.util.base;
 
 /**
- *
+ * Can be used as final but modifyable variable for lambdas.
+ * Sometimes also called: Box (see PLT)
  * @author cpl
  */
-public final class PropertyValueString extends AbstractPropertyValue implements Serializable {
+public final class SimpleReference <T> {
     
-    private static final long serialVersionUID = 1L;
-
-    private final String value;
-
-    protected PropertyValueString(CharSequence cs) {
-        this.value = cs.toString();
+    private T value;
+    
+    public SimpleReference() {
+        this(null);
     }
-
-    @Override
-    public PropertyValueType valueType() {
-        return PropertyValueType.STRING;
+    
+    public SimpleReference(T value) {
+        this.value = value;
     }
-
-    @Override
-    public String unwrapped() {
+    
+    public T get() {
         return value;
     }
-
-    @Override
-    public String render() {
-        return StringPool.DQUOTE + StringEscapeUtil.escapeJava(value) + StringPool.DQUOTE;
+    
+    public void set(T value) {
+        this.value = value;
     }
+    
 }

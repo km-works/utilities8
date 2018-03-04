@@ -14,39 +14,43 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.config.impl;
+package kmworks.util.fs.attr;
 
-import java.io.Serializable;
-import kmworks.util.StringEscapeUtil;
-import kmworks.util.StringPool;
-import kmworks.util.config.PropertyValueType;
+import javax.annotation.Nullable;
 
 /**
  *
  * @author cpl
  */
-public final class PropertyValueString extends AbstractPropertyValue implements Serializable {
+public class FileAttr {
     
-    private static final long serialVersionUID = 1L;
-
-    private final String value;
-
-    protected PropertyValueString(CharSequence cs) {
-        this.value = cs.toString();
+    private String value;
+    private boolean isModified;
+    
+    public FileAttr(@Nullable String value) {
+        this.value = value;
+        isModified = false;
     }
-
-    @Override
-    public PropertyValueType valueType() {
-        return PropertyValueType.STRING;
+    
+    public String get() {
+        return this.value;
     }
-
-    @Override
-    public String unwrapped() {
-        return value;
+    
+    public void set(@Nullable String value) {
+        this.value = value;
+        isModified = true;
     }
-
-    @Override
-    public String render() {
-        return StringPool.DQUOTE + StringEscapeUtil.escapeJava(value) + StringPool.DQUOTE;
+    
+    public void setDeleted() {
+        this.value = null;
+        isModified = true;
+    }
+    
+    public boolean isDeleted() {
+        return value ==  null;
+    }
+    
+    public boolean isModified() {
+        return isModified;
     }
 }

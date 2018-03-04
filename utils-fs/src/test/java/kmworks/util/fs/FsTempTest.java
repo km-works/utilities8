@@ -16,12 +16,15 @@
  */
 package kmworks.util.fs;
 
+import kmworks.util.fs.attr.FileAttributes;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.UserDefinedFileAttributeView;
+import java.util.Optional;
 import kmworks.util.StringUtil;
-import static kmworks.util.fs.FileAttrUtil.*;
+import static kmworks.util.fs.attr.FileAttrUtil.*;
+import kmworks.util.misc.UUIDGenerator;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -31,28 +34,39 @@ import static org.junit.Assert.*;
  */
 public class FsTempTest {
     
+    private static final Path FILE_PATH = FileSystems.getDefault().getPath("C:\\_\\dev\\TEMP\\test", "txt1.txt");
+    private static final Path DIR_PATH = FileSystems.getDefault().getPath("C:\\_\\dev\\TEMP\\test\\");
+    private static final String ATTR_NAME = "FILE_ID";
+
     public FsTempTest() {
     }
-    
+
     private void pln(String s) {
         System.out.println(s);
     }
     
     @Test
-    public void test1() throws Exception {
-        Path path = Paths.get("D:\\temp\\test","txt1.txt");
-        assertTrue(path.toFile().exists());
-        pln("\nFile: " + path.toString());
-        pln("  UD-Attributes: ");
-        
-        UserDefinedFileAttributeView view = userDefinedAttrView(path);
-        for (String attrName : view.list()) {
-            pln("    " + attrName + ": " + userDefinedAttrValue(view, attrName));
-        }
-        
-        String attrName = "FILE_ID";
-        String attrVal = "12345678";
-        view.write(attrName, StringUtil.Convert.toByteBuffer(attrVal, UTF_8));    //StandardCharsets.UTF_8.encode(attrVal1)
+    public void testFileAttributes_01() throws Exception {
+        String attrVal = UUIDGenerator.generate().toString();
+        FileAttributes fileAttrs = FileAttributes.of(FILE_PATH);
+        fileAttrs.set(ATTR_NAME, attrVal);
+        fileAttrs.close();
+        FileAttributes fileAttrs2 = FileAttributes.of(FILE_PATH);
+        String readVal = fileAttrs2.get(ATTR_NAME);
+        fileAttrs2.close();
+        assertEquals(attrVal, readVal);
     }
-    
+
+    @Test
+    public void testDirAttributes_01() {
+        String attrVal = UUIDGenerator.generate().toString();
+        FileAttributes fileAttrs = FileAttributes.of(DIR_PATH);
+        fileAttrs.set(ATTR_NAME, attrVal);
+        fileAttrs.close();
+        FileAttributes fileAttrs2 = FileAttributes.of(DIR_PATH);
+        String readVal = fileAttrs2.get(ATTR_NAME);
+        fileAttrs2.close();
+        assertEquals(attrVal, readVal);
+    }
+
 }

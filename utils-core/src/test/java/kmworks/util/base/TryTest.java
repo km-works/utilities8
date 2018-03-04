@@ -32,7 +32,7 @@ public class TryTest {
 
   @Test
   public void testTryFailure() {
-    Try<URI> tryUri = Try(() -> new URI("<<<>>>"));
+    Try<URI> tryUri = try_(() -> new URI("<<<>>>"));
     
     if(tryUri.isSuccess()) {
       assertTrue(tryUri instanceof Success);
@@ -51,7 +51,7 @@ public class TryTest {
   
   @Test
   public void testTrySuccess() {
-    Try<URI> tryUri = Try(() -> new URI("http://localhost/"));
+    Try<URI> tryUri = try_(() -> new URI("http://localhost/"));
     
     if(tryUri.isSuccess()) {
       assertTrue(tryUri instanceof Success);

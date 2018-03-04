@@ -22,7 +22,7 @@ package kmworks.util.base;
  */
 public abstract class Try<T> {
   
-  public static <T, S extends T> Try<S> Try(Tryable<S> expr) 
+  public static <T, S extends T> Try<S> try_(Tryable<S> expr) 
   {
     try {
       return new Success<>(expr.eval());

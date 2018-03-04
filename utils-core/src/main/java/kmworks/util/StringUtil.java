@@ -16,14 +16,9 @@
  */
 package kmworks.util;
 
-import static com.google.common.base.Preconditions.*;
-import com.google.common.collect.ImmutableMap;
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
 import java.nio.ByteBuffer;
 import java.nio.CharBuffer;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.text.CharacterIterator;
 import java.text.SimpleDateFormat;
 import java.text.StringCharacterIterator;
@@ -35,17 +30,16 @@ import java.util.Date;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
-//import java.util.Properties;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.TreeSet;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import static kmworks.util.StringPool.*;
-//import kmworks.util.config.property.PropertyMap;
 import kmworks.util.lambda.Function1;
-import kmworks.util.misc.Base64Utils;
+
 
 /**
  * km-works static utility methods pertaining to {@code String} or {@code CharSequence}. Except when annotated with
@@ -133,6 +127,11 @@ public final class StringUtil {
     public static String emptyToNull(@Nullable final CharSequence cs) {
         return isNullOrEmpty(cs) ? null : cs.toString();
     }
+    
+    @Nullable
+    public static String nullsafe(@Nullable String s, @Nonnull Function<String, String> fn) {
+        return s == null ? s : fn.apply(s);
+    }
 
     /**
      * Returns the given CharSequence if it is neither null nor empty, the given defaultValue otherwise.
@@ -145,7 +144,7 @@ public final class StringUtil {
     public static String nvl(@Nullable final CharSequence str, @Nullable final CharSequence defaultValue) {
         return !isNullOrEmpty(str) ? nullToEmpty(str) : nullToEmpty(defaultValue);
     }
-
+    
     public static String trim(@Nullable String s) {
         return s == null ? null : s.trim();
     }
@@ -219,158 +218,40 @@ public final class StringUtil {
         return sb.toString();
     }
 
+    // Delete
+    //-----------------------------------------------------------------------
     /**
-     * Facade for commons-lang3 
-     * @param str
-     * @return 
-     */
-    public static String escapeJava(@Nullable final String str) {
-        return nullToEmpty(org.apache.commons.lang3.StringEscapeUtils.escapeJava(str));
-    }
-
-    public static String unescapeJava(@Nullable final String str) {
-        return nullToEmpty(org.apache.commons.lang3.StringEscapeUtils.unescapeJava(str));
-    }
-
-    
-    /** Translates a string into application/x-www-form-urlencoded format. 
-     * This method uses the UTF-8 encoding scheme to obtain the bytes for unsafe characters.
-     * Note: The World Wide Web Consortium Recommendation states that UTF-8 should be used. 
-     * Not doing so may introduce incompatibilites.
-     * 
-     * @param str Input string to be URL encoded
-     * @return URL-encoded result
-     */
-    public static String escapeURI(@Nullable final String str) {
-        String result = null;
-        try {
-            result = URLEncoder.encode(str, UTF8_STRING);
-        } catch (UnsupportedEncodingException ex) { /* cannot happen */ }
-        return nullToEmpty(result);
-    }
-    
-    /**
-     * Decodes a application/x-www-form-urlencoded string to UTF-8
+     * <p>Deletes all whitespaces from a String as defined by
+     * {@link Character#isWhitespace(char)}.</p>
      *
-     * @param str
-     * @return UTF-8 encoded equivalent string
-     */
-    public static String unescapeURI(@Nullable final String str) {
-        return unescapeURI(str, StandardCharsets.UTF_8);
-    }
-
-    public static String unescapeURI(@Nullable final String str, final Charset charSet) {
-        return nullToEmpty(decodeURL(str, charSet));
-    }
-
-    /**
-     * Decodes a <code>application/x-www-form-urlencoded</code> string using a specific encoding scheme. The supplied
-     * encoding is used to determine what characters are represented by any consecutive sequences of the form
-     * "<code>%<i>xy</i></code>".
-     * <p>
-     * <em><strong>Note:</strong> The <a href=
-     * "http://www.w3.org/TR/html40/appendix/notes.html#non-ascii-chars">
-     * World Wide Web Consortium Recommendation</a> states that UTF-8 should be used. Not doing so may introduce
-     * incompatibilites.</em>
+     * <pre>
+     * StringUtils.deleteWhitespace(null)         = null
+     * StringUtils.deleteWhitespace("")           = ""
+     * StringUtils.deleteWhitespace("abc")        = "abc"
+     * StringUtils.deleteWhitespace("   ab  c  ") = "abc"
+     * </pre>
      *
-     * @param str the <code>String</code> to decode
-     * @param enc The name of a supported character encoding
-     * @return the newly decoded <code>String</code>
-     * @exception UnsupportedEncodingException If character encoding needs to be consulted, but named character encoding
-     * is not supported
-     * @see URLEncoder#encode(java.lang.String, java.lang.String)
+     * @param str  the String to delete whitespace from, may be null
+     * @return the String without whitespaces, {@code null} if null String input
      */
-    @Nullable 
-    private static String decodeURL(@Nonnull String str, Charset charSet) {
-        checkNotNull(str);
-
-        boolean needToChange = false;
-        int numChars = str.length();
-        StringBuilder sb = new StringBuilder(numChars > 500 ? numChars / 2 : numChars);
-        int i = 0;
-
-        char c;
-        byte[] bytes = null;
-        while (i < numChars) {
-            c = str.charAt(i);
-            switch (c) {
-                case '+':
-                    sb.append(' ');
-                    i++;
-                    needToChange = true;
-                    break;
-                case PERCENT_CH:
-                    /*
-           * Starting with this instance of %, process all
-           * consecutive substrings of the form %xy. Each
-           * substring %xy will yield a byte. Convert all
-           * consecutive  bytes obtained this way to whatever
-           * character(s) they represent in the provided
-           * encoding.
-                     */
-                    try {
-                        // (numChars-i)/3 is an upper bound for the number
-                        // of remaining bytes
-                        if (bytes == null) {
-                            bytes = new byte[(numChars - i) / 3];
-                        }
-                        int pos = 0;
-
-                        while (((i + 2) < numChars) && (c == PERCENT_CH)) {
-                            int v = Integer.parseInt(str.substring(i + 1, i + 3), 16);
-                            if (v < 0) {
-                                throw new IllegalArgumentException("URLDecoder: Illegal hex characters in escape (%) pattern - negative value");
-                            }
-                            bytes[pos++] = (byte) v;
-                            i += 3;
-                            if (i < numChars) {
-                                c = str.charAt(i);
-                            }
-                        }
-                        // A trailing, incomplete byte encoding such as
-                        // "%x" will cause an exception to be thrown
-                        if ((i < numChars) && (c == PERCENT_CH)) {
-                            throw new IllegalArgumentException(
-                                    "URLDecoder: Incomplete trailing escape (%) pattern");
-                        }
-                        sb.append(new String(bytes, 0, pos, charSet));
-                    } catch (NumberFormatException e) {
-                        throw new IllegalArgumentException(
-                                "URLDecoder: Illegal hex characters in escape (%) pattern - "
-                                + e.getMessage());
-                    }
-                    needToChange = true;
-                    break;
-                default:
-                    sb.append(c);
-                    i++;
-                    break;
+    public static String deleteWhitespace(final String str) {
+        if (isNullOrEmpty(str)) {
+            return str;
+        }
+        final int sz = str.length();
+        final char[] chs = new char[sz];
+        int count = 0;
+        for (int i = 0; i < sz; i++) {
+            if (!Character.isWhitespace(str.charAt(i))) {
+                chs[count++] = str.charAt(i);
             }
         }
-        return (needToChange ? sb.toString() : str);
+        if (count == sz) {
+            return str;
+        }
+        return new String(chs, 0, count);
     }
-
-    public static String encodeBase64(final String plainText) {
-        return encodeBase64(plainText, StandardCharsets.UTF_8);
-    }
-
-    public static String encodeBase64(final String plainText, final Charset charSet) {
-        return Base64Utils.encodeToString(plainText.getBytes(charSet), false);
-    }
-
-    public static String decodeBase64(final String base64String) {
-        return decodeBase64(base64String, StandardCharsets.UTF_8);
-    }
-
-    public static String decodeBase64(final String base64String, final Charset charSet) {
-        return new String(Base64Utils.decodeFast(base64String), charSet);
-    }
-
-    public static String encodeUTF8(String s) {
-        return new String(StandardCharsets.UTF_8.encode(s).array());
-    }
-
-
+    
     /*
    * Join a list of strings into a single string
      */
@@ -478,9 +359,14 @@ public final class StringUtil {
         return sb.toString();
     }
 
-    public static String sqlEscSQ(final String sqlString) {
-        final String result = sqlString.replaceAll(SQUOTE, "''");
-        return result;
+    @Nullable
+    public static String sqlEscSQ(@Nullable final String str) {
+        return nullsafe(str, s -> s.replaceAll(SQUOTE, SQUOTE+SQUOTE));
+    }
+    
+    @Nonnull
+    public static String sqlTextValue(@Nullable final String str) {
+        return str == null ? "null" : SQUOTE + sqlEscSQ(str) + SQUOTE;
     }
 
     public static String sanitizeFilenameString(final String path) {

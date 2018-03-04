@@ -25,6 +25,8 @@ public final class StringPool {
   
   public static final char TAB_CH           = '\t'; // U+0009   (horizontal tabulation, character tabulation, HT)
   public static final char NEWLINE_CH       = '\n'; // U+000A   (line feed, LF, end of line, EOL)
+  public static final char LF_CH            = NEWLINE_CH;
+  public static final char CR_CH            = '\r';
   
   public static final char SPACE_CH         = ' ';  // U+0020   
   public static final char EXCLAM_CH        = '!';  // U+0021   (exclamation mark, factorial, bang)

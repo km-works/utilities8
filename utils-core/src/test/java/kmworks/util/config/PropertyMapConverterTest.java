@@ -41,7 +41,7 @@ public class PropertyMapConverterTest {
     public void test_01a() {
         Properties p1 = new Properties();
         p1.put("key1", "some string value");
-        p1.put("key2", "123");      //TODO: does not work with integer value 123
+        p1.put("key2", "123");
         p1.put("key3", "true");
         p1.put("key4", false);
         pln(p1.toString());
@@ -54,10 +54,41 @@ public class PropertyMapConverterTest {
     
     @Test
     public void test_01b() {
+        Properties p1 = new Properties();
+        p1.put("key1", "some string value");
+        p1.put("key2", 123);
+        p1.put("key3", "true");
+        p1.put("key4", false);
+        pln(p1.toString());
+        PropertyMap pm = PropertyMapConverter.fromProperties(p1);
+        pln(pm.toString());
+        Properties p2 = PropertyMapConverter.toProperties(pm);
+        pln(p2.toString());
+        assertEquals(p1, p2);
+    }
+    
+    @Test
+    public void test_01c() {
         PropertyMap pm1 = PropertyMap.of(Arrays.asList(
             kv("key1", "some string value"),
             kv("key2", 123),
             kv("key3", true),
+            kv("key4", false)
+        ));
+        pln(pm1.toString());
+        Properties prop = PropertyMapConverter.toProperties(pm1);
+        pln(prop.toString());
+        PropertyMap pm2 = PropertyMapConverter.fromProperties(prop);
+        pln(pm2.toString());
+        assertEquals(pm1, pm2);
+    }
+    
+    @Test
+    public void test_01d() {
+        PropertyMap pm1 = PropertyMap.of(Arrays.asList(
+            kv("key1", "some string value"),
+            kv("key2", 123),
+            kv("key3", "true"),
             kv("key4", false)
         ));
         pln(pm1.toString());

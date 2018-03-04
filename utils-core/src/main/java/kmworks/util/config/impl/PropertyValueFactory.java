@@ -41,21 +41,21 @@ public final class PropertyValueFactory {
         return PropertyValueBoolean.FALSE_Value;
     }
     
-    public static PropertyValueBoolean mkBooleanValue(boolean bool) {
-        return bool ? mkTrueValue() : mkFalseValue();
+    public static PropertyValueBoolean mkBooleanValue(boolean value) {
+        return value ? mkTrueValue() : mkFalseValue();
     }
     
-    public static PropertyValueString mkStringValue(@Nonnull final CharSequence cs) {
-        checkNotNull(cs);
-        return new PropertyValueString(cs);
+    public static PropertyValueString mkStringValue(@Nonnull final CharSequence value) {
+        checkNotNull(value);
+        return new PropertyValueString(value);
     }
     
-    public static PropertyValueNumber mkNumberValue(double number) {
-        return new PropertyValueNumber(number);
+    public static PropertyValueNumber mkNumberValue(Number value) {
+        return new PropertyValueNumber(value);
     }
     
-    public static PropertyValueNumber mkNumberValue(long number) {
-        return new PropertyValueNumber(number);
+    public static PropertyValueNumber mkNumberValue(long value) {
+        return new PropertyValueNumber(value);
     }
     
     public static PropertyValueList mkListValue(@Nonnull final Iterator<PropertyValue> iterator) {

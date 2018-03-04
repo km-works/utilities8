@@ -29,8 +29,11 @@ public final class PropertyValueNumber extends AbstractPropertyValue implements 
     private static final long serialVersionUID = 1L;
     
     private final Number value;
-    private final boolean isDecimal;
     
+    protected PropertyValueNumber(Number value) {
+        this.value = value;
+    }
+    /*
     protected PropertyValueNumber(double value) {
         this.value = value;
         this.isDecimal = true;
@@ -40,7 +43,8 @@ public final class PropertyValueNumber extends AbstractPropertyValue implements 
         this.value = value;
         this.isDecimal = false;
     }
-
+    */
+    
     @Override
     public PropertyValueType valueType() {
         return PropertyValueType.NUMBER;
@@ -57,11 +61,11 @@ public final class PropertyValueNumber extends AbstractPropertyValue implements 
     }
     
     public double asDouble() {
-        return isDecimal ? (Double) value : value.doubleValue();
+        return value.doubleValue();
     }
     
     public long asLong() {
-        return isDecimal ? value.longValue() : (Long) value;
+        return value.longValue();
     }
     
 }
