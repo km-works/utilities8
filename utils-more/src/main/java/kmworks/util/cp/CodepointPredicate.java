@@ -52,7 +52,7 @@ public abstract class CodepointPredicate {
   }
   
   public final Predicate1<Integer> asPredicate() {
-    return (Integer i) -> contains(i);
+    return i -> contains(i);
   }
   
 }
