@@ -31,6 +31,8 @@ import java.nio.file.Path;
 import java.util.AbstractMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +43,7 @@ public final class DirAttributesImpl extends AbstractFileAttributes {
 
     private static final String METADATA_FILENAME = ".metadata";
     private static final String METADATA_KV_SEP = ": ";
-    
+
     private final File metadataFile;
 
     public DirAttributesImpl(Path dirPath) {
@@ -52,14 +54,12 @@ public final class DirAttributesImpl extends AbstractFileAttributes {
 
     @Override
     void load() {
-        try {
-            BufferedReader in = new BufferedReader(new InputStreamReader(
-                    new FileInputStream(metadataFile), StandardCharsets.UTF_8));
+        try (BufferedReader in = new BufferedReader(new InputStreamReader(
+                new FileInputStream(metadataFile), StandardCharsets.UTF_8))) {
             in.lines().forEach(line -> {
                 List<String> kv = Splitter.on(METADATA_KV_SEP).limit(2).splitToList(line);
                 attributes.put(kv.get(0), new FileAttr(kv.get(1)));
             });
-            in.close();
         } catch (Exception ex) {
         }
     }
@@ -68,23 +68,22 @@ public final class DirAttributesImpl extends AbstractFileAttributes {
     public void close() {
         checkNotClosed();
         Map<String, String> attrsOut = ImmutableMap.copyOf(
-            entries().stream()
-                .filter(e -> !e.getValue().isDeleted())
-                .map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().get()))
-                .collect(Collectors.toList())
+                entries().stream()
+                        .filter(e -> !e.getValue().isDeleted())
+                        .map(e -> new AbstractMap.SimpleImmutableEntry<>(e.getKey(), e.getValue().get()))
+                        .collect(Collectors.toList())
         );
         write(attrsOut);
         setClosed();
     }
-    
+
     private void write(Map<String, String> attrs) {
-        try {
-            Writer out = new BufferedWriter(new OutputStreamWriter(
-                            new FileOutputStream(metadataFile), StandardCharsets.UTF_8));
-            for (Map.Entry<String, String> entry : attrs.entrySet()) {
-                out.write(String.format("%s%s%s", entry.getKey(), METADATA_KV_SEP, entry.getValue()));
+        try (Writer out = new BufferedWriter(new OutputStreamWriter(
+                new FileOutputStream(metadataFile), StandardCharsets.UTF_8))) {
+            Set<String> keys = new TreeSet(attrs.keySet());
+            for (String key : keys) {
+                out.write(String.format("%s%s%s\n", key, METADATA_KV_SEP, attrs.get(key)));
             }
-            out.close();
         } catch (Exception ex) {
         }
     }
