@@ -6,12 +6,13 @@ package kmworks.util.persist.ds;
 
 import static com.google.common.base.Preconditions.*;
 import com.google.common.collect.Maps;
+import com.google.inject.Provider;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.concurrent.ConcurrentMap;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import javax.inject.Provider;
+//import javax.inject.Provider;
 import javax.sql.DataSource;
 import kmworks.util.config.PropertyMap;
 import org.slf4j.Logger;
