@@ -100,11 +100,7 @@ public final class PropertyMap implements Serializable {
     
     public PropertyValue getValue(@Nonnull final String key) {
         checkNotNull(key);
-        if (containsKey(key)) {
-            return properties.get(key);
-        } else {
-            throw new NoSuchElementException("Missing key: " + key);
-        }        
+        return containsKey(key) ? properties.get(key): PropertyValue.NULL();     
     }
     
     public <T> T get(@Nonnull final String key) {
@@ -114,11 +110,7 @@ public final class PropertyMap implements Serializable {
     
     public <T> T getOrElse(@Nonnull final String key, final T defValue) {
         checkNotNull(key);
-        if (containsKey(key)) {
-            return get(key);
-        } else {
-            return defValue;
-        }
+        return containsKey(key) ? get(key) : defValue;
     }
     
 /*    
@@ -151,7 +143,7 @@ public final class PropertyMap implements Serializable {
     }
 */    
     
-    public boolean getBoolean(@Nonnull final String key) {
+    public boolean getAsBoolean(@Nonnull final String key) {
         final Object value = get(key);
         if (value == null) {
             return false;

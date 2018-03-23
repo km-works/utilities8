@@ -37,6 +37,9 @@ public class PropertyMapConverterTest {
     public PropertyMapConverterTest() {
     }
 
+    /** Test series 01.
+     *  Verify x == toProperties(fromProperties(x))
+     */
     @Test
     public void test_01a() {
         Properties p1 = new Properties();
@@ -67,8 +70,11 @@ public class PropertyMapConverterTest {
         assertEquals(p1, p2);
     }
     
+    /** Test series 02.
+     *  Verify x == fromProperties(toProperties(x))
+     */
     @Test
-    public void test_01c() {
+    public void test_02a() {
         PropertyMap pm1 = PropertyMap.of(Arrays.asList(
             kv("key1", "some string value"),
             kv("key2", 123),
@@ -84,7 +90,7 @@ public class PropertyMapConverterTest {
     }
     
     @Test
-    public void test_01d() {
+    public void test_02b() {
         PropertyMap pm1 = PropertyMap.of(Arrays.asList(
             kv("key1", "some string value"),
             kv("key2", 123),
@@ -99,8 +105,11 @@ public class PropertyMapConverterTest {
         assertEquals(pm1, pm2);
     }
     
+    /** Test series 03.
+     *  Verify x == toConfig(fromConfig(x))
+     */
     @Test
-    public void test_02a() {
+    public void test_03a() {
         Config c1 = ConfigFactory.parseMap(PropertyMap.of(Arrays.asList(
             kv("key1", "some string value"),
             kv("key2", 123),
@@ -115,8 +124,11 @@ public class PropertyMapConverterTest {
         assertEquals(c1, c2);
     }
     
+    /** Test series 04.
+     *  Verify x == fromConfig(toConfig(x))
+     */
     @Test
-    public void test_02b() {
+    public void test_04b() {
         PropertyMap pm1 = PropertyMap.of(Arrays.asList(
             kv("key1", "some string value"),
             kv("key2", 123),
