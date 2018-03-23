@@ -16,29 +16,24 @@
  */
 package kmworks.util.fs;
 
-import kmworks.util.fs.attr.FileAttributes;
-import static java.nio.charset.StandardCharsets.UTF_8;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Optional;
-import kmworks.util.StringUtil;
-import static kmworks.util.fs.attr.FileAttrUtil.*;
+import kmworks.util.fs.attr.FileAttributes;
 import kmworks.util.misc.UUIDGenerator;
-import org.junit.Test;
 import static org.junit.Assert.*;
+import org.junit.Test;
 
 /**
  *
  * @author cpl
  */
-public class FsTempTest {
+public class FsAttrTest {
     
     private static final Path FILE_PATH = FileSystems.getDefault().getPath("C:\\_\\dev\\TEMP\\test", "txt1.txt");
     private static final Path DIR_PATH = FileSystems.getDefault().getPath("C:\\_\\dev\\TEMP\\test\\");
     private static final String ATTR_NAME = "FILE_ID";
 
-    public FsTempTest() {
+    public FsAttrTest() {
     }
 
     private void pln(String s) {
