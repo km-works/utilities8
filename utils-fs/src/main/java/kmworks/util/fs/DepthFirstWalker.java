@@ -26,15 +26,16 @@ import java.util.Arrays;
 import javax.annotation.Nonnull;
 import kmworks.util.config.PropertyMap;
 import static kmworks.util.config.PropertyMap.kv;
+import kmworks.util.lambda.Function2;
 import kmworks.util.lambda.LambdaUtil;
 import kmworks.util.lambda.Predicate2;
-import kmworks.util.lambda.Runnable2;
+import kmworks.util.lambda.Runnable1;
 
 /**
  *
  * @author cpl
  */
-public class DepthFirstWalker {
+public final class DepthFirstWalker<T> {
     
     public static final String KEY$FOLLOW_SYMBOLIC_LINKS = "follow-symbolic-links";
     public static final String KEY$WALK_HIDDEN_DIRS = "walk-hidden-dirs";
@@ -51,9 +52,9 @@ public class DepthFirstWalker {
     private Predicate2<Path, Integer> dirConsidered;
     private Predicate2<Path, Integer> filesIncluded = (path, level) -> true;
     private Predicate2<Path, Integer> filesExcluded = (path, level) -> false;
-    private Predicate2<Path, Integer> filesConsidered;
-    private Runnable2<Path, Object> fileProcessor = null;
-    private Object processorContext = null;
+    private Predicate2<Path, Integer> fileConsidered;
+    private Function2<Path, T, T> fileProcessor = null;
+    private T processingResult = null;
     private Statistics statistics;
     
     public DepthFirstWalker(@Nonnull Path rootDir) {
@@ -91,15 +92,27 @@ public class DepthFirstWalker {
     public void walk() {
         walk(null, null);
     }
-    public void walk(Runnable2<Path, Object> fileProcessor, Object processorContext) {
+    
+    public void walk(Runnable1<Path> fileProcessor) {
+        walk((Path arg1, T arg2) -> {
+            fileProcessor.run(arg1);
+            return null;
+        }, null);
+    }
+    
+    public void walk(Function2<Path, T, T> fileProcessor, T initialProcessorContext) {
         this.fileProcessor = fileProcessor;
-        this.processorContext = processorContext;
+        this.processingResult = initialProcessorContext;
         this.dirConsidered = LambdaUtil.and(dirsIncluded, LambdaUtil.negate(dirsExcluded));
-        this.filesConsidered = LambdaUtil.and(filesIncluded, LambdaUtil.negate(filesExcluded));
+        this.fileConsidered = LambdaUtil.and(filesIncluded, LambdaUtil.negate(filesExcluded));
         this.statistics  = new Statistics();
         walking(rootDir, 0);
         statistics.incDirsWalked(1);
         statistics.finish();
+    }
+    
+    public T getResult() {
+        return processingResult;
     }
     
     public Statistics statistics() {
@@ -108,21 +121,29 @@ public class DepthFirstWalker {
     
     private void walking(Path path, int level) {
         try (DirectoryStream<Path> content = Files.newDirectoryStream(path)) {
-            for (Path item: content) {  // alphabetically ordered by item.getFileName
-
-                if (isDirectory(item)) {
+            for (Path entry : content) {  // alphabetically ordered by item.getFileName
+                if (isDirectory(entry)) {
                     statistics.incDirsVisited(1);
-                    if (canWalkDirectory(item, level+1)) {
-                        walking(item, level+1);
+                    if (canProcessFile(entry, level+1, dirConsidered)) {
+                        statistics.incDirsProcessable(1);
+                        if (fileProcessor != null) {
+                            T tempResult = fileProcessor.apply(entry, processingResult);
+                            if (tempResult != null) processingResult = tempResult;
+                            statistics.incDirsProcessed(1);
+                        }
+                    }
+                    if (canWalkDirectory(entry, level+1)) {
+                        walking(entry, level+1);
                         statistics.incDirsWalked(1);
                     }
                 }
-                if (isRegularFile(item)) {
+                if (isRegularFile(entry)) {
                     statistics.incFilesVisited(1);
-                    if (canProcessFile(item, level+1)) {
+                    if (canProcessFile(entry, level+1, fileConsidered)) {
                         statistics.incFilesProcessable(1);
                         if (fileProcessor != null) {
-                            fileProcessor.run(item, processorContext);
+                            T tempResult = fileProcessor.apply(entry, processingResult);
+                            if (tempResult != null) processingResult = tempResult;
                             statistics.incFilesProcessed(1);
                         }
                     }
@@ -134,13 +155,13 @@ public class DepthFirstWalker {
     }
     
     private boolean isDirectory(Path path) {
-        return properties.getBoolean(KEY$FOLLOW_SYMBOLIC_LINKS)
+        return properties.getAsBoolean(KEY$FOLLOW_SYMBOLIC_LINKS)
                 ? Files.isDirectory(path)
                 : Files.isDirectory(path, LinkOption.NOFOLLOW_LINKS);
     }
     
     private boolean isRegularFile(Path path) {
-        return properties.getBoolean(KEY$FOLLOW_SYMBOLIC_LINKS)
+        return properties.getAsBoolean(KEY$FOLLOW_SYMBOLIC_LINKS)
                 ? Files.isRegularFile(path)
                 : Files.isRegularFile(path, LinkOption.NOFOLLOW_LINKS);
     }
@@ -148,18 +169,20 @@ public class DepthFirstWalker {
     private boolean canWalkDirectory(Path path, int level) {
         final File dir = path.toFile();
         try {
-             return dir.canRead() && dirConsidered.test(path, level) && (
-                        !dir.isHidden() || dir.isHidden() && properties.getBoolean(KEY$PROCESS_HIDDEN_FILES));
+             return dir.canRead() 
+                     && dirConsidered.test(path, level) 
+                     && (!dir.isHidden() || dir.isHidden() && properties.getAsBoolean(KEY$PROCESS_HIDDEN_FILES));
         } catch (Exception ex) {
             return false;
         }
     }
     
-    private boolean canProcessFile(Path path, int level) {
+    private boolean canProcessFile(Path path, int level, Predicate2<Path, Integer> filesConsidered) {
         final File file = path.toFile();
         try {
-            return file.canRead() && filesConsidered.test(path, level) && (
-                    !file.isHidden() || file.isHidden() && properties.getBoolean(KEY$PROCESS_HIDDEN_FILES));
+            return file.canRead() 
+                    && filesConsidered.test(path, level) 
+                    && (!file.isHidden() || file.isHidden() && properties.getAsBoolean(KEY$PROCESS_HIDDEN_FILES));
         } catch (Exception ex) {
             return false;
         }
@@ -173,6 +196,8 @@ public class DepthFirstWalker {
         private int filesProcessable = 0;
         private int filesProcessed = 0;
         private int dirsVisited = 0;
+        private int dirsProcessable = 0;
+        private int dirsProcessed = 0;
         private int dirsWalked = 0;
         
         private Statistics() {
@@ -195,7 +220,15 @@ public class DepthFirstWalker {
             dirsVisited += inc;
         }
         
-        public void incDirsWalked(int inc) {
+        public void incDirsProcessed(int inc) {
+            dirsProcessed += inc;
+        }
+        
+        public void incDirsProcessable(int inc) {
+            dirsProcessable += inc;
+        }
+        
+         public void incDirsWalked(int inc) {
             dirsWalked += inc;
         }
         
@@ -215,10 +248,18 @@ public class DepthFirstWalker {
             return filesProcessed;
         }
 
-       public int getDirsVisited() {
+        public int getDirsVisited() {
             return dirsVisited;
         }
         
+        public int getDirsProcessable() {
+            return dirsProcessable;
+        }
+
+        public int getDirsProcessed() {
+            return dirsProcessed;
+        }
+
         public int getDirsWalked() {
             return dirsWalked;
         }
