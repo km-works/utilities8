@@ -30,7 +30,8 @@ package kmworks.util.base;
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
  */
-public interface Supplier<T> extends com.google.common.base.Supplier<T> {
+@FunctionalInterface
+public interface Supplier<T> {
 
   /**
    * Retrieves an instance of the appropriate type. The returned object may or

@@ -16,14 +16,13 @@
  */
 package kmworks.util.lambda;
 
-import javax.annotation.Nullable;
 
 /**
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
  */
 @FunctionalInterface
-public interface Function1<T, R> extends com.google.common.base.Function<T, R> {
+public interface Function1<D, R> {
   
   /**
    * Returns the result of applying this function to {@code input}. This method is <i>generally
@@ -39,5 +38,5 @@ public interface Function1<T, R> extends com.google.common.base.Function<T, R> {
    * @throws NullPointerException if {@code input} is null and this function does not accept null
    *     arguments
    */
-  @Nullable R apply(@Nullable T arg);
+  R apply(D arg);
 }

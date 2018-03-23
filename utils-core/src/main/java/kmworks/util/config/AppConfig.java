@@ -15,8 +15,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import javax.annotation.Nonnull;
 
-/**
- *
+/** Application configuration data holder.
+ *  TODO: move to kmw-chasis-base
  * @author Christian P. Lerch
  */
 public class AppConfig {
@@ -41,13 +41,13 @@ public class AppConfig {
         effectiveConfig = defaultConfig.getConfig(activeEnv);
     }
 
-    public static void overrideWith(Config newConfig) {
-        String newEnv = checkNotNull(newConfig).getString(PATH_ENV);
+    public static void overrideWith(Config other) {
+        String newEnv = checkNotNull(other).getString(PATH_ENV);
         if (Strings.isNullOrEmpty(newEnv)) {
             throw new IllegalArgumentException(MSG_ENV_NOT_SET);
         }
         INSTANCE.activeEnv = newEnv;
-        INSTANCE.effectiveConfig = newConfig.getConfig(INSTANCE.activeEnv).withFallback(INSTANCE.effectiveConfig);
+        INSTANCE.effectiveConfig = other.getConfig(INSTANCE.activeEnv).withFallback(INSTANCE.effectiveConfig);
     }
 
     public static void overrideWith(File configFile) {

@@ -25,6 +25,6 @@ import javax.annotation.Nullable;
 @FunctionalInterface
 public interface Function2<T1, T2, R> {
   
-  @Nullable  R apply(@Nullable T1 arg1, @Nullable T2 arg2);  
+  @Nullable R apply(@Nullable T1 arg1, @Nullable T2 arg2);  
   
 }

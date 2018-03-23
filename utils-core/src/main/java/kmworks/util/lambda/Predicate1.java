@@ -16,8 +16,6 @@
  */
 package kmworks.util.lambda;
 
-import javax.annotation.Nullable;
-
 /**
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
@@ -42,6 +40,6 @@ public interface Predicate1<T1> {
    * @throws NullPointerException if {@code arg1} is null and this predicate does not accept null
    *     arguments
    */
-  boolean test(@Nullable T1 arg1);
+  boolean test(T1 arg1);
 
 }

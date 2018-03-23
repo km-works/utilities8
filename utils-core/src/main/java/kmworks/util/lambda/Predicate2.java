@@ -16,8 +16,6 @@
  */
 package kmworks.util.lambda;
 
-import javax.annotation.Nullable;
-
 /**
  *
  * @author Christian P. Lerch
@@ -25,6 +23,6 @@ import javax.annotation.Nullable;
 @FunctionalInterface
 public interface Predicate2<T1, T2> {
   
-  boolean test(@Nullable T1 arg1, @Nullable T2 arg2);
+  boolean test(T1 arg1, T2 arg2);
   
 }
