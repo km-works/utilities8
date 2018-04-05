@@ -29,7 +29,6 @@ public interface IntPredicate {
         return IntRangeUtil.without(this, p);
     }
 
-
     static IntPredicate of(@Nonnull final Predicate1<Integer> p) {
         Objects.requireNonNull(p);
         return new IntPredicate() {

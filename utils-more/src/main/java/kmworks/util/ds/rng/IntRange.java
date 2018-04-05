@@ -2,6 +2,7 @@ package kmworks.util.ds.rng;
 
 import com.google.common.collect.PeekingIterator;
 import kmworks.util.collect.ImmutableSortedSet;
+import kmworks.util.iter.SortedIterable;
 
 import java.util.Comparator;
 
@@ -12,27 +13,23 @@ import static kmworks.util.StringPool.MUST_NOT_BE_NULL_MSG;
  *
  * @author cpl
  */
-public interface IntRange extends IntPredicate, ImmutableSortedSet<Integer> {
+public interface IntRange extends IntPredicate, SortedIterable<Integer> {   //ImmutableSortedSet<Integer>
 
-    static Comparator<Integer> COMPARATOR = (a, b) -> {
-        checkNotNull(a, "1st argument " + MUST_NOT_BE_NULL_MSG);
-        checkNotNull(b, "2nd argument " + MUST_NOT_BE_NULL_MSG);
-        return a.compareTo(b);
-    };
+    int first();
 
-    default boolean contains(Integer value) {
-        return value == null ? false : contains((int) value);
-    };
+    int last();
 
-    @Override default boolean isEmpty() {
+    int size();
+
+    default boolean isEmpty() {
         return false;
     }
+
+    @Override PeekingIterator<Integer> iterator();
 
     @Override default Comparator<Integer> comparator() {
         return COMPARATOR;
     }
-
-    @Override PeekingIterator<Integer> iterator();
 
     default int span() {
         return last() - first() + 1;
@@ -44,6 +41,12 @@ public interface IntRange extends IntPredicate, ImmutableSortedSet<Integer> {
 
     boolean equals(Object obj);
     int hashCode();
+
+    static Comparator<Integer> COMPARATOR = (a, b) -> {
+        checkNotNull(a, "1st argument " + MUST_NOT_BE_NULL_MSG);
+        checkNotNull(b, "2nd argument " + MUST_NOT_BE_NULL_MSG);
+        return a.compareTo(b);
+    };
 
 /*
     CodepointSet intersect(CodepointSet that);

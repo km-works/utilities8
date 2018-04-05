@@ -124,7 +124,7 @@ public class DiscontiguousIntRange extends AbstractIntRange {
             return false;
         }
         final DiscontiguousIntRange other = (DiscontiguousIntRange) obj;
-        if (this.size() != other.size() || !this.first().equals(other.first()) || !this.last().equals(other.last())) {
+        if (this.size() != other.size() || this.first() != other.first() || this.last() != other.last()) {
             return false;
         }
         final int length = this.buckets.length;

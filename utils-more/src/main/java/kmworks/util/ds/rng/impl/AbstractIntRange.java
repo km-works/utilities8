@@ -49,12 +49,12 @@ abstract class AbstractIntRange implements IntRange {
 
 
     @Override
-    public final Integer first() {
+    public final int first() {
         return first;
     }
 
     @Override
-    public final Integer last() {
+    public final int last() {
         return last;
     }
 

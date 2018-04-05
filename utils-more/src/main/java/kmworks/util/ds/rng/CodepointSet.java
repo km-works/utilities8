@@ -27,8 +27,8 @@ public interface CodepointSet extends CodepointPredicate, IntRange {
     int CODEPOINT_MIN = 0;
     int CODEPOINT_MAX = 1114111;
 
-    default boolean contains(Character value) {
-        return value == null ? false : contains((int) value);
+    default boolean contains(char value) {
+        return contains((int) value);
     }
 
     static int checkBounds(int codepoint) {

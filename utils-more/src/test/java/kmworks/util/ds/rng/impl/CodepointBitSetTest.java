@@ -139,14 +139,14 @@ public class CodepointBitSetTest {
         for (int i = 0; i < iterations; i++) {
             final CodepointBitSet.Builder builder = randomBuilder(1000, maxCodepoint);
             final SortedSet<Integer> set = builder.getSet();
-            final CodepointSet bs = builder.build();
+            final CodepointSet cps = builder.build();
 
-            assertEquals(set.size(), bs.size());
-            assertEquals(set.first(), bs.first());
-            assertEquals(set.last(), bs.last());
+            assertEquals(set.size(), cps.size());
+            assertTrue(set.first() == cps.first());
+            assertTrue(set.last() == cps.last());
 
             final Iterator<Integer> setIter = set.iterator();
-            final Iterator<Integer> bsIter = bs.iterator();
+            final Iterator<Integer> bsIter = cps.iterator();
             while (setIter.hasNext() && bsIter.hasNext()) {
                 assertEquals(setIter.next(), bsIter.next());
             }
