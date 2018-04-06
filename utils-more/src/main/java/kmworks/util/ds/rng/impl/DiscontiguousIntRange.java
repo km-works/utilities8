@@ -9,6 +9,7 @@ import kmworks.util.ds.rng.IntRangeFactory;
 
 import javax.annotation.Nonnull;
 import java.util.Arrays;
+import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -33,8 +34,13 @@ public class DiscontiguousIntRange extends AbstractIntRange {
         }
     }
 
-    protected DiscontiguousIntRange(@Nonnull SortedSet<Integer> sortedSet) {
+    protected DiscontiguousIntRange(@Nonnull Set<Integer> set) {    //SortedSet<Integer> sortedSet
         super(new AbstractIntRange.Initializer() {
+
+            private final SortedSet<Integer> sortedSet = set instanceof SortedSet
+                    ? (SortedSet<Integer>) set
+                    : new TreeSet(set);
+
             @Override
             public int getFirst() {
                 return checkNotNullOrEmpty(sortedSet).first();
@@ -53,7 +59,7 @@ public class DiscontiguousIntRange extends AbstractIntRange {
 
         buckets = initBuckets(span() - 1);
 
-        for (int value : sortedSet) {
+        for (int value : set) {
             setMember(value);
         }
     }

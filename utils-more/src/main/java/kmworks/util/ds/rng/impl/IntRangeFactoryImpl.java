@@ -4,6 +4,7 @@ import kmworks.util.ds.rng.IntRange;
 
 import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.Set;
 import java.util.SortedSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -14,9 +15,9 @@ public class IntRangeFactoryImpl {
         return new ContiguousIntRange(first, last);
     }
 
-    public DiscontiguousIntRange createIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
-        checkNotNull(sortedSet);
-        return new DiscontiguousIntRange(sortedSet);
+    public DiscontiguousIntRange createIntRange(@Nonnull final Set<Integer> set) {
+        checkNotNull(set);
+        return new DiscontiguousIntRange(set);
     }
 
     public IntRangeSeq createIntRange(@Nonnull List<IntRange> segments) {
