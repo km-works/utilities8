@@ -1,22 +1,23 @@
 /*
  *  Copyright (C) 2005-2018 Christian P. Lerch, Vienna, Austria.
- * 
+ *
  *  This program is free software; you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
  *  Software Foundation; either version 3 of the License, or (at your option)
  *  any later version.
- * 
+ *
  *  This program is distributed in the hope that it will be useful, but WITHOUT
  *  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more 
+ *  FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
  *  details.
- * 
+ *
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
 package kmworks.util.ds.rng.impl;
 
 import static com.google.common.base.Preconditions.*;
+
 import com.google.common.collect.ImmutableList;
 
 import java.util.List;
@@ -29,25 +30,36 @@ import kmworks.util.lambda.Function0;
 
 import javax.annotation.Nonnull;
 
-/** A non-overlaping sequence if SimpleIntRange instances.
+/**
+ * A non-overlaping sequence if SimpleIntRange instances.
  *
  * @author cpl
  */
 public final class IntRangeSeq extends AbstractIntRange {
-    
+
     private List<Entry> entries;
 
     IntRangeSeq(List<IntRange> segments) {
-        this(segments.get(0).first(), segments.get(segments.size()-1).last(), segments);
+        this(segments.get(0).first(), segments.get(segments.size() - 1).last(), segments);
     }
 
     @SuppressWarnings("unchecked")
     IntRangeSeq(int first, int last, @Nonnull final Iterable<IntRange> segments) {
         super(new AbstractIntRange.Initializer() {
             private final ImmutableList.Builder<Entry> entryBuilder = new ImmutableList.Builder<>();
-            @Override public int getFirst() { return first; }
-            @Override public int getLast() { return last; }
-            @Override public int getSize() {
+
+            @Override
+            public int getFirst() {
+                return first;
+            }
+
+            @Override
+            public int getLast() {
+                return last;
+            }
+
+            @Override
+            public int getSize() {
                 int offset = 0, size = 0;
                 for (IntRange range : segments) {
                     entryBuilder.add(new Entry(range, offset));
@@ -56,14 +68,16 @@ public final class IntRangeSeq extends AbstractIntRange {
                 }
                 return size;
             }
-            @Override public Function0<List<Entry>> getInitializer() {
+
+            @Override
+            public Function0<List<Entry>> getInitializer() {
                 return () -> entryBuilder.build();
             }
         });
-        entries = (List<Entry>)initializer().apply();
+        entries = (List<Entry>) initializer().apply();
     }
 
-    
+
     @Override
     public boolean contains(int value) {
         checkNotNull(value);
@@ -72,7 +86,7 @@ public final class IntRangeSeq extends AbstractIntRange {
 
     @Override
     public PeekingIterator<Integer> iterator() {
-        return (PeekingIterator<Integer>)Iterators.concat(entries.stream()
+        return (PeekingIterator<Integer>) Iterators.concat(entries.stream()
                 .map(e -> e.range.iterator())
                 .collect(Collectors.toList()).iterator());
     }
@@ -107,35 +121,35 @@ public final class IntRangeSeq extends AbstractIntRange {
 
 
     private static class Entry {
-        
+
         private final IntRange range;
         private final int offset;
-        
+
         Entry(IntRange range, int offset) {
             this.range = range;
             this.offset = offset;
         }
-        
+
     }
-    
+
     public static class Builder {
-        
+
         private DiscontiguousIntRange.Builder memberBuilder;
-        
+
         public Builder() {
             memberBuilder = new DiscontiguousIntRange.Builder();
         }
-        
+
         public Builder add(int value) {
             memberBuilder.add(value);
             return this;
         }
-        
+
         public Builder add(IntRange range) {
             memberBuilder.addRange(range.first(), range.last());
             return this;
         }
-        
+
         public Builder addRange(int first, int last) {
             memberBuilder.addRange(first, last);
             return this;
@@ -156,7 +170,7 @@ public final class IntRangeSeq extends AbstractIntRange {
             }
             return this;
         }
-        
+
         public Builder addRanges(Iterable<IntRange> iter) {
             for (IntRange range : iter) {
                 if (range != null) {
@@ -165,7 +179,7 @@ public final class IntRangeSeq extends AbstractIntRange {
             }
             return this;
         }
-        
+
         public List<IntRange> build() {
             ImmutableList.Builder<IntRange> listBuilder = new ImmutableList.Builder<>();
             IntRange range = memberBuilder.build();
@@ -175,7 +189,7 @@ public final class IntRangeSeq extends AbstractIntRange {
                 while (range.contains(curr) && curr <= range.last()) {
                     curr += 1;
                 }
-                listBuilder.add(new ContiguousIntRange(first, curr-1));
+                listBuilder.add(new ContiguousIntRange(first, curr - 1));
                 while (curr <= range.last() && !range.contains(curr)) {
                     curr += 1;
                 }
@@ -185,5 +199,5 @@ public final class IntRangeSeq extends AbstractIntRange {
         }
 
     }
-    
+
 }
