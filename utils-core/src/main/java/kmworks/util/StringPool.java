@@ -59,6 +59,7 @@ public final class StringPool {
 
     public static final String MUST_NOT_BE_NULL_MSG = "must not be null";
     public static final String MUST_NOT_BE_EMPTY_MSG = "must not be empty";
+    public static final String MUST_NOT_BE_NULL_OR_EMPTY_MSG = "must not be null or empty";
     public static final String OUT_OF_RANGE_MSG = "out of rnage";
 
 }
