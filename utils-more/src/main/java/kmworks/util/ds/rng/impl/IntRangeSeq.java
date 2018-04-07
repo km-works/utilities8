@@ -20,18 +20,22 @@ import static com.google.common.base.Preconditions.*;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
+import static kmworks.util.base.Preconditions.*;
+
+import kmworks.util.StringPool;
 import kmworks.util.ds.rng.IntRange;
 import kmworks.util.lambda.Function0;
 
 import javax.annotation.Nonnull;
 
 /**
- * A non-overlaping sequence if SimpleIntRange instances.
+ * A possibly overlaping or not disjoint, non-empty sequence if IntRange instances.
  *
  * @author cpl
  */
@@ -39,12 +43,16 @@ public final class IntRangeSeq extends AbstractIntRange {
 
     private List<Entry> entries;
 
-    IntRangeSeq(List<IntRange> segments) {
-        this(segments.get(0).first(), segments.get(segments.size() - 1).last(), segments);
+    IntRangeSeq(@Nonnull final IntRange... segements) {
+        this(checkNotEmpty(Arrays.asList(checkNotNull(segements))));
+    }
+
+    IntRangeSeq(@Nonnull final List<IntRange> segments) {
+        this(checkNotEmpty(segments).get(0).first(), segments.get(segments.size() - 1).last(), segments);
     }
 
     @SuppressWarnings("unchecked")
-    IntRangeSeq(int first, int last, @Nonnull final Iterable<IntRange> segments) {
+    private IntRangeSeq(int first, int last, @Nonnull final Iterable<IntRange> segments) {
         super(new AbstractIntRange.Initializer() {
             private final ImmutableList.Builder<Entry> entryBuilder = new ImmutableList.Builder<>();
 
@@ -71,7 +79,7 @@ public final class IntRangeSeq extends AbstractIntRange {
 
             @Override
             public Function0<List<Entry>> getInitializer() {
-                return () -> entryBuilder.build();
+                return entryBuilder::build;
             }
         });
         entries = (List<Entry>) initializer().apply();
@@ -80,7 +88,6 @@ public final class IntRangeSeq extends AbstractIntRange {
 
     @Override
     public boolean contains(int value) {
-        checkNotNull(value);
         return indexOf(value) != null;
     }
 
@@ -184,7 +191,7 @@ public final class IntRangeSeq extends AbstractIntRange {
             ImmutableList.Builder<IntRange> listBuilder = new ImmutableList.Builder<>();
             IntRange range = memberBuilder.build();
             int curr = range.first();
-            while (true) {
+            do {
                 int first = curr;
                 while (range.contains(curr) && curr <= range.last()) {
                     curr += 1;
@@ -193,8 +200,7 @@ public final class IntRangeSeq extends AbstractIntRange {
                 while (curr <= range.last() && !range.contains(curr)) {
                     curr += 1;
                 }
-                if (curr > range.last()) break;
-            }
+            } while (curr <= range.last());
             return listBuilder.build();
         }
 
