@@ -24,19 +24,22 @@ public final class StringPool {
     private StringPool() {
     }
 
-    public static final char TAB_CH = '\t'; // U+0009   (horizontal tabulation, character tabulation, HT)
-    public static final char NEWLINE_CH = '\n'; // U+000A   (line feed, LF, end of line, EOL)
-    public static final char LF_CH = NEWLINE_CH;
+    public static final char TAB_CH = '\t';         // U+0009   (horizontal tabulation, character tabulation, HT)
+    public static final char NEWLINE_CH = '\n';     // U+000A   (line feed, LF, end of line, EOL)
+    public static final char LF_CH = NEWLINE_CH;    // U+000A   (line feed, LF, end of line, EOL)
     public static final char CR_CH = '\r';
 
-    public static final char SPACE_CH = ' ';  // U+0020
-    public static final char EXCLAM_CH = '!';  // U+0021   (exclamation mark, factorial, bang)
-    public static final char DQUOTE_CH = '"';  // U+0022   (quotation mark)
-    public static final char PERCENT_CH = '%';  // U+0025   (percent sign)
-    public static final char SQUOTE_CH = '\''; // U+0027   (apostrophe)
-    public static final char COMMA_CH = ',';  // U+002C   (decimal separator)
-    public static final char DOT_CH = '.';  // U+002E   (full stop, period, decimal point)
+    public static final char SPACE_CH = ' ';        // U+0020
+    public static final char EXCLAM_CH = '!';       // U+0021   (exclamation mark, factorial, bang)
+    public static final char DQUOTE_CH = '"';       // U+0022   (quotation mark)
+    public static final char PERCENT_CH = '%';      // U+0025   (percent sign)
+    public static final char SQUOTE_CH = '\'';      // U+0027   (apostrophe)
+    public static final char COMMA_CH = ',';        // U+002C   (decimal separator)
+    public static final char DOT_CH = '.';          // U+002E   (full stop, period, decimal point)
 
+    /*
+        Commonly used short strings
+     */
     public static final String NEWLINE = "\n";
     public static final String TAB = "\t";
 
@@ -51,12 +54,18 @@ public final class StringPool {
     public static final String CURLY_OPEN = "{";
     public static final String CURLY_CLOSE = "}";
 
+    /*
+        Often used strings
+     */
     public static final String BOOLEAN_TRUE = String.valueOf(true);
     public static final String BOOLEAN_FALSE = String.valueOf(false);
     public static final String EMPTY_STRING = "";
     public static final String NULL_STRING = "null";
     public static final String UTF8_STRING = "UTF-8";
 
+    /*
+        Common error messages
+     */
     public static final String MUST_NOT_BE_NULL_MSG = "must not be null";
     public static final String MUST_NOT_BE_EMPTY_MSG = "must not be empty";
     public static final String MUST_NOT_BE_NULL_OR_EMPTY_MSG = "must not be null or empty";
