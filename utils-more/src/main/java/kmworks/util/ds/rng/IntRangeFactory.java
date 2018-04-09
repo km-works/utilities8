@@ -10,8 +10,10 @@ import static kmworks.util.base.Preconditions.checkNotEmpty;
 
 public class IntRangeFactory {
 
+    private static final IntRangeFactoryImpl factory = new IntRangeFactoryImpl();
+
     public static IntRange createCompactIntRange(int first, int last) {
-        return new IntRangeFactoryImpl().createCompactIntRange(first, last);
+        return factory.createCompactIntRange(first, last);
     }
 
     public static IntRange createBitsetIntRange(@Nonnull final Set<Integer> set) {
@@ -19,7 +21,7 @@ public class IntRangeFactory {
     }
 
     public static IntRange createBitsetIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
-        return new IntRangeFactoryImpl().createBitsetIntRange(sortedSet);
+        return factory.createBitsetIntRange(sortedSet);
     }
 
    public static IntRange createSegmentedIntRange(@Nonnull final IntRange... pieces) {
@@ -27,7 +29,7 @@ public class IntRangeFactory {
     }
 
     public static IntRange createSegmentedIntRange(@Nonnull final List<IntRange> pieces) {
-        return new IntRangeFactoryImpl().createSegmentedIntRange(pieces);
+        return factory.createSegmentedIntRange(pieces);
     }
 
     public static IntRange createSegmentedIntRange(@Nonnull final Set<Integer> set) {
@@ -35,7 +37,7 @@ public class IntRangeFactory {
     }
 
     public static IntRange createSegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
-        return new IntRangeFactoryImpl().createSegmentedIntRange(sortedSet);
+        return factory.createSegmentedIntRange(sortedSet);
     }
 
 }
