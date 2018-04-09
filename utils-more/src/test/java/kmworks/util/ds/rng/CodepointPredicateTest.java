@@ -16,8 +16,7 @@
  */
 package kmworks.util.ds.rng;
 
-import kmworks.util.ds.rng.*;
-import kmworks.util.ds.rng.impl.CodepointBitSet;
+import kmworks.util.ds.rng.impl.BitsetCodepointRange;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -79,7 +78,7 @@ public class CodepointPredicateTest {
 
     @Test
     public void testWithout() {
-        CodepointPredicate digits = CodepointBitSet.fromRange('0', '9');
+        CodepointPredicate digits = BitsetCodepointRange.fromRange('0', '9');
         CodepointPredicate six = new CodepointPredicate() {
             @Override
             public boolean contains(int cp) {
@@ -94,14 +93,14 @@ public class CodepointPredicateTest {
 
     @Test
     public void realWorld01() {
-        CodepointPredicate cp1 = CodepointBitSet.of(CodepointSetUtil.codepointsFrom("\"\\\f\u201c\u201d\u2028\u2029"));
+        CodepointPredicate cp1 = BitsetCodepointRange.of(CodepointRangeUtil.codepointsFrom("\"\\\f\u201c\u201d\u2028\u2029"));
         CodepointPredicate cp2 = new CodepointPredicate() {
             @Override
             public boolean contains(int cp) {
                 return Character.getType(cp) == Character.CONTROL;
             }
         };
-        CodepointPredicate invalidStringCharSet = CodepointSetUtil.or(cp1, cp2);
+        CodepointPredicate invalidStringCharSet = CodepointRangeUtil.or(cp1, cp2);
         assertTrue(invalidStringCharSet.contains(0));
         assertTrue(invalidStringCharSet.contains('\f'));
         assertTrue(invalidStringCharSet.contains('\\'));

@@ -1,9 +1,8 @@
 package kmworks.util.ds.rng;
 
 import com.google.common.collect.ImmutableSet;
-import junit.framework.Assert;
-import kmworks.util.ds.rng.impl.ContiguousIntRange;
-import kmworks.util.ds.rng.impl.DiscontiguousIntRange;
+import kmworks.util.ds.rng.impl.CompactIntRange;
+import kmworks.util.ds.rng.impl.BitsetIntRange;
 import org.junit.Test;
 
 import java.util.Set;
@@ -15,7 +14,7 @@ public class IntRangeFactoryTest {
     @Test
     public void testCreateContiguousIntRange() {
         IntRange rng = IntRangeFactory.createIntRange(1, 10);
-        assertTrue(rng instanceof ContiguousIntRange);
+        assertTrue(rng instanceof CompactIntRange);
         assertEquals(10, rng.span());
         assertEquals(rng.size(), rng.span());
         assertTrue(rng.contains(1));
@@ -30,7 +29,7 @@ public class IntRangeFactoryTest {
     public void testCreateDiscontiguousIntRange() {
         Set<Integer> set = new ImmutableSet.Builder<Integer>().add(1,3,7,10).build();
         IntRange rng = IntRangeFactory.createIntRange(set);
-        assertTrue(rng instanceof DiscontiguousIntRange);
+        assertTrue(rng instanceof BitsetIntRange);
         assertEquals(10, rng.span());
         assertNotSame(rng.size(), rng.span());
         assertTrue(rng.contains(1));

@@ -19,7 +19,7 @@ package kmworks.util.ds.rng;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.PeekingIterator;
-import kmworks.util.ds.rng.impl.CodepointBitSet;
+import kmworks.util.ds.rng.impl.BitsetCodepointRange;
 import kmworks.util.lambda.LambdaUtil;
 import kmworks.util.lambda.Predicate1;
 
@@ -39,7 +39,7 @@ import java.util.Objects;
  *
  * @author Christian P. Lerch
  */
-public class CodepointSetUtil {
+public class CodepointRangeUtil {
 
   public static CodepointPredicate of(@Nonnull final Predicate1<Integer> p) {
     Objects.requireNonNull(p);
@@ -90,7 +90,7 @@ public class CodepointSetUtil {
   }
   
   /**
-   * Internalize a CodepointSet from an external textual representation.
+   * Internalize a CodepointRange from an external textual representation.
    * The external textual representation should comply to the following garmmar:
    * <pre>
    * start = ws line+ EOF
@@ -110,7 +110,7 @@ public class CodepointSetUtil {
    * @return
    * @throws IOException 
    */
-  public static CodepointSet fromText(Reader r, int radix) throws IOException
+  public static CodepointRange fromText(Reader r, int radix) throws IOException
   { 
     final ImmutableSortedSet.Builder<Integer> builder = new ImmutableSortedSet.Builder<>(IntRange.COMPARATOR);
     final BufferedReader br = new BufferedReader(r);
@@ -130,10 +130,10 @@ public class CodepointSetUtil {
         }          
       }
     }
-    return CodepointBitSet.of(builder.build());
+    return BitsetCodepointRange.of(builder.build());
   }
   
-  public static void toText(CodepointSet set, Writer w, int radix) throws IOException 
+  public static void toText(CodepointRange set, Writer w, int radix) throws IOException
   {
     final PeekingIterator<Integer> iter = set.iterator();
 
@@ -163,17 +163,17 @@ public class CodepointSetUtil {
     w.write("\n");
   }
   
-  public static void externalize(CodepointBitSet set, OutputStream out) throws IOException 
+  public static void externalize(BitsetCodepointRange set, OutputStream out) throws IOException
   {
     ObjectOutputStream oos = new ObjectOutputStream(out);
     oos.writeObject(set);
     oos.flush();
   }
   
-  public static CodepointSet internalize(InputStream is) throws IOException, ClassNotFoundException 
+  public static CodepointRange internalize(InputStream is) throws IOException, ClassNotFoundException
   {
 	    ObjectInputStream ois = new ObjectInputStream(is);  	    
-	    return (CodepointBitSet)ois.readObject();
+	    return (BitsetCodepointRange)ois.readObject();
   }
   
   /*

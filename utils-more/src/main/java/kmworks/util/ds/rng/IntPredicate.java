@@ -3,7 +3,8 @@ package kmworks.util.ds.rng;
 import kmworks.util.lambda.Predicate1;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface IntPredicate {
 
@@ -17,26 +18,24 @@ public interface IntPredicate {
         return IntRangeUtil.negate(this);
     }
 
-    default IntPredicate or(final IntPredicate p) {
+    default IntPredicate or(@Nonnull final IntPredicate p) {
+        checkNotNull(p);
         return IntRangeUtil.or(this, p);
     }
 
-    default IntPredicate and(final IntPredicate p) {
+    default IntPredicate and(@Nonnull final IntPredicate p) {
+        checkNotNull(p);
         return IntRangeUtil.and(this, p);
     }
 
-    default IntPredicate without(final IntPredicate p) {
+    default IntPredicate without(@Nonnull final IntPredicate p) {
+        checkNotNull(p);
         return IntRangeUtil.without(this, p);
     }
 
     static IntPredicate of(@Nonnull final Predicate1<Integer> p) {
-        Objects.requireNonNull(p);
-        return new IntPredicate() {
-            @Override
-            public boolean contains(int value) {
-                return p.test(value);
-            }
-        };
+        checkNotNull(p);
+        return p::test;
     }
 
 }

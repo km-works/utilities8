@@ -13,12 +13,10 @@ import static kmworks.util.StringPool.MUST_NOT_BE_NULL_MSG;
  *
  * @author cpl
  */
-public interface IntRange extends IntPredicate, SortedIterable<Integer> {   //ImmutableSortedSet<Integer>
+public interface IntRange extends IntPredicate, SortedIterable<Integer>, Comparable<IntRange> {
 
     int first();
-
     int last();
-
     int size();
 
     default boolean isEmpty() {
@@ -36,11 +34,19 @@ public interface IntRange extends IntPredicate, SortedIterable<Integer> {   //Im
     }
 
     default boolean overlaps(IntRange that) {
-        return this.last() >= that.first() || this.first() <= that.last();
+        return isInRange(that.first(), this) || isInRange(this.first(), that);
     }
 
+    boolean isInRange(int value, IntRange rng);
+
     boolean equals(Object obj);
+
     int hashCode();
+
+    default int compareTo(IntRange other) {
+        return new Integer(this.first()).compareTo(other.first());
+    }
+
 
     static Comparator<Integer> COMPARATOR = (a, b) -> {
         checkNotNull(a, "1st argument " + MUST_NOT_BE_NULL_MSG);
@@ -49,9 +55,9 @@ public interface IntRange extends IntPredicate, SortedIterable<Integer> {   //Im
     };
 
 /*
-    CodepointSet intersect(CodepointSet that);
-    CodepointSet union(CodepointSet that);
-    CodepointSet minus(CodepointSet that);
-    CodepointSet complementOf(int first, int last);
+    IntRange intersect(IntRange that);
+    IntRange union(IntRange that);
+    IntRange minus(IntRange that);
+    IntRange complementOf(int first, int last);
 */
 }

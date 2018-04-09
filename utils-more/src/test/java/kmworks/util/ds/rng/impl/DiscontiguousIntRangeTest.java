@@ -36,11 +36,12 @@ public class DiscontiguousIntRangeTest {
 
     @Test
     public void testContains() {
-        IntRange range = IntRangeFactory.createIntRange(new IntRangeSeq.Builder()
+        IntRange range = IntRangeFactory.createIntRangePiecewise(new SegmentedIntRange.Builder()
                 .addRange(10, 20)
                 .add(30)
                 .addRange(40, 50)
                 .build());
+
         assertTrue(range.contains(15));
         assertTrue(range.contains(30));
         assertTrue(range.contains(40));

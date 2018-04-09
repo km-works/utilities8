@@ -18,9 +18,7 @@ package kmworks.util.ds.rng;
 
 import java.io.StringWriter;
 
-import kmworks.util.ds.rng.CodepointSet;
-import kmworks.util.ds.rng.CodepointSetUtil;
-import kmworks.util.ds.rng.impl.CodepointBitSet;
+import kmworks.util.ds.rng.impl.BitsetCodepointRange;
 import org.junit.Test;
 import static org.junit.Assert.*;
 import org.junit.Ignore;
@@ -29,9 +27,9 @@ import org.junit.Ignore;
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
  */
-public class CodepointSetUtilTest {
+public class CodepointRangeUtilTest {
   
-  public CodepointSetUtilTest() {
+  public CodepointRangeUtilTest() {
   }
 
   @Test
@@ -45,8 +43,8 @@ public class CodepointSetUtilTest {
   @Test
   public void testToText() throws Exception {
     StringWriter w = new StringWriter();
-    CodepointSet cps = CodepointBitSet.of(5,6,8,10,11,15);
-    CodepointSetUtil.toText(cps, w, 10);
+    CodepointRange cps = BitsetCodepointRange.of(5,6,8,10,11,15);
+    CodepointRangeUtil.toText(cps, w, 10);
     String result = w.toString();
     System.out.println(result);
     assertEquals("5-6\n8\n10-11\n15\n", result);

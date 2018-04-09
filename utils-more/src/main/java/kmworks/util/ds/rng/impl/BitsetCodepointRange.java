@@ -17,15 +17,13 @@
 package kmworks.util.ds.rng.impl;
 
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import javax.annotation.Nonnull;
 
-import kmworks.util.ObjectUtil;
-import kmworks.util.ds.rng.CodepointSet;
-import kmworks.util.ds.rng.CodepointSetUtil;
-import static kmworks.util.ds.rng.CodepointSet.checkBounds;
+import kmworks.util.ds.rng.CodepointRange;
+import kmworks.util.ds.rng.CodepointRangeUtil;
+import static kmworks.util.ds.rng.CodepointRange.checkBounds;
 
 
 /**
@@ -37,36 +35,36 @@ import static kmworks.util.ds.rng.CodepointSet.checkBounds;
  *
  * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
 
-    public final class CodepointBitSet extends CodepointSet implements Externalizable, Serializable {
+    public final class BitsetCodepointRange extends CodepointRange implements Externalizable, Serializable {
 
  */
-public final class CodepointBitSet extends DiscontiguousIntRange implements CodepointSet, Serializable {
+public final class BitsetCodepointRange extends BitsetIntRange implements CodepointRange, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private CodepointBitSet(@Nonnull SortedSet<Integer> sortedSet) {
+    private BitsetCodepointRange(@Nonnull SortedSet<Integer> sortedSet) {
         super(sortedSet);
     }
 
     //  Static factories
 
-    public static CodepointSet of(int... args) {
+    public static CodepointRange of(int... args) {
         return new Builder().add(args).build();
     }
 
-    public static CodepointSet of(@Nonnull Iterable<Integer> iter) {
+    public static CodepointRange of(@Nonnull Iterable<Integer> iter) {
         return new Builder().addAll(iter).build();
     }
 
-    public static CodepointSet of(@Nonnull SortedSet<Integer> set) {
-        return new CodepointBitSet(set);
+    public static CodepointRange of(@Nonnull SortedSet<Integer> set) {
+        return new BitsetCodepointRange(set);
     }
 
-    public static CodepointSet fromRange(int from, int to) {
+    public static CodepointRange fromRange(int from, int to) {
         return new Builder().addRange(from, to).build();
     }
 
-    public static CodepointSet fromRange(char from, char to) {
+    public static CodepointRange fromRange(char from, char to) {
         return new Builder().addRange(from, to).build();
     }
 
@@ -87,8 +85,8 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
     }
 
 
-    // construct this CodepointBitSet from a SortedSet
-    private CodepointBitSet(@Nonnull SortedSet<Integer> sortedSet)
+    // construct this BitsetCodepointRange from a SortedSet
+    private BitsetCodepointRange(@Nonnull SortedSet<Integer> sortedSet)
             throws IllegalArgumentException { // if set contains out-of-bound members
         if (checkNotNull(sortedSet).isEmpty()) {
             initEmptyInstance();
@@ -102,8 +100,8 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
         }
     }
 
-    // construct this CodepointBitSet from that AbstractCodepointSet view
-    private CodepointBitSet(@Nonnull CodepointSet that, Integer fromMember, Integer toMember) {
+    // construct this BitsetCodepointRange from that AbstractCodepointSet view
+    private BitsetCodepointRange(@Nonnull CodepointRange that, Integer fromMember, Integer toMember) {
         if (checkNotNull(that).isEmpty()) {
             initEmptyInstance();
         } else {
@@ -143,7 +141,7 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
     //  Implementation of AbstractCodepointSet
 
     @Override
-    public CodepointSet intersect(@Nonnull CodepointSet that) {
+    public CodepointRange intersect(@Nonnull CodepointRange that) {
         if (checkNotNull(that).isEmpty() || this.isEmpty() || this.hasDisjointRangeWith(that)) {
             return of();
         }
@@ -153,11 +151,11 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
                 builder.add(codepoint);
             }
         }
-        return new CodepointBitSet(builder.build(), null, null);
+        return new BitsetCodepointRange(builder.build(), null, null);
     }
 
     @Override
-    public CodepointSet union(@Nonnull CodepointSet that) {
+    public CodepointRange union(@Nonnull CodepointRange that) {
         if (checkNotNull(that).isEmpty()) {
             return this;
         }
@@ -168,7 +166,7 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
     }
 
     @Override
-    public CodepointSet minus(@Nonnull CodepointSet that) {
+    public CodepointRange minus(@Nonnull CodepointRange that) {
         if (checkNotNull(that).isEmpty() || this.hasDisjointRangeWith(that)) {
             return this;
         }
@@ -185,7 +183,7 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
     }
 
     @Override
-    public CodepointSet complementOf(int first, int last) {
+    public CodepointRange complementOf(int first, int last) {
         if (checkBounds(first) > checkBounds(last)) {
             throw new IllegalArgumentException("first must not be larger than last");
         }
@@ -203,20 +201,20 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
 
     //@Override
     // ImmutableSortedSet<Integer>
-    public CodepointSet subSet(Integer fromMember, Integer toMember) {
-        return new CodepointBitSet(this, fromMember, toMember);
+    public CodepointRange subSet(Integer fromMember, Integer toMember) {
+        return new BitsetCodepointRange(this, fromMember, toMember);
     }
 
     //@Override
     // ImmutableSortedSet<Integer>
-    public CodepointSet headSet(Integer toMember) {
-        return new CodepointBitSet(this, null, toMember);
+    public CodepointRange headSet(Integer toMember) {
+        return new BitsetCodepointRange(this, null, toMember);
     }
 
     //@Override
     // ImmutableSortedSet<Integer>
-    public CodepointSet tailSet(Integer fromMember) {
-        return new CodepointBitSet(this, fromMember, null);
+    public CodepointRange tailSet(Integer fromMember) {
+        return new BitsetCodepointRange(this, fromMember, null);
     }
 
 
@@ -354,7 +352,7 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
         }
 
         public Builder add(String s) {
-            return addAll(CodepointSetUtil.codepointsFrom(s));
+            return addAll(CodepointRangeUtil.codepointsFrom(s));
         }
 
         public Builder addAll(Iterable<Integer> iter) {
@@ -387,8 +385,8 @@ public final class CodepointBitSet extends DiscontiguousIntRange implements Code
             return this;
         }
 
-        public CodepointSet build() {
-            return CodepointBitSet.of(set);
+        public CodepointRange build() {
+            return BitsetCodepointRange.of(set);
         }
 
         public SortedSet<Integer> getSet() {

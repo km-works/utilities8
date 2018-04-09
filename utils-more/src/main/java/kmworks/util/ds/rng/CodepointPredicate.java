@@ -3,39 +3,41 @@ package kmworks.util.ds.rng;
 import kmworks.util.lambda.Predicate1;
 
 import javax.annotation.Nonnull;
-import java.util.Objects;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public interface CodepointPredicate extends IntPredicate {
 
+    default boolean contains(char value) {
+        return contains((int) value);
+    }
+
     default Predicate1<Integer> asPredicate() {
-        return CodepointSetUtil.asPredicate(this);
+        return CodepointRangeUtil.asPredicate(this);
     }
 
     default CodepointPredicate negate() {
-        return CodepointSetUtil.negate(this);
+        return CodepointRangeUtil.negate(this);
     }
 
-    default CodepointPredicate or(final CodepointPredicate p) {
-        return CodepointSetUtil.or(this, p);
+    default CodepointPredicate or(@Nonnull final CodepointPredicate p) {
+        checkNotNull(p);
+        return CodepointRangeUtil.or(this, p);
     }
 
-    default CodepointPredicate and(final CodepointPredicate p) {
-        return CodepointSetUtil.and(this, p);
+    default CodepointPredicate and(@Nonnull final CodepointPredicate p) {
+        checkNotNull(p);
+        return CodepointRangeUtil.and(this, p);
     }
 
-    default CodepointPredicate without(final CodepointPredicate p) {
-        return CodepointSetUtil.without(this, p);
+    default CodepointPredicate without(@Nonnull final CodepointPredicate p) {
+        checkNotNull(p);
+        return CodepointRangeUtil.without(this, p);
     }
 
     static CodepointPredicate of(@Nonnull final Predicate1<Integer> p) {
-        Objects.requireNonNull(p);
-        return new CodepointPredicate() {
-            @Override
-            public boolean contains(int value) {
-                return p.test(value);
-            }
-        };
+        checkNotNull(p);
+        return p::test;
     }
-
 
 }

@@ -8,15 +8,15 @@ import kmworks.util.ds.rng.IntRange;
 import kmworks.util.ds.rng.IntRangeFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Arrays;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static kmworks.util.StringPool.MUST_NOT_BE_EMPTY_MSG;
+import static kmworks.util.base.Preconditions.checkNotEmpty;
 
-public class DiscontiguousIntRange extends AbstractIntRange {
+public class BitsetIntRange extends AbstractIntRange {
 
     private long[] buckets;
 
@@ -34,26 +34,26 @@ public class DiscontiguousIntRange extends AbstractIntRange {
         }
     }
 
-    protected DiscontiguousIntRange(@Nonnull Set<Integer> set) {    //SortedSet<Integer> sortedSet
-        super(new AbstractIntRange.Initializer() {
+    BitsetIntRange(@Nonnull Set<Integer> set) {
 
+        super(new AbstractIntRange.Initializer() {
             private final SortedSet<Integer> sortedSet = set instanceof SortedSet
                     ? (SortedSet<Integer>) set
                     : new TreeSet(set);
 
             @Override
             public int getFirst() {
-                return checkNotNullOrEmpty(sortedSet).first();
+                return checkNotEmpty(sortedSet).first();
             }
 
             @Override
             public int getLast() {
-                return checkNotNullOrEmpty(sortedSet).last();
+                return checkNotEmpty(sortedSet).last();
             }
 
             @Override
             public int getSize() {
-                return checkNotNullOrEmpty(sortedSet).size();
+                return checkNotEmpty(sortedSet).size();
             }
         });
 
@@ -64,7 +64,8 @@ public class DiscontiguousIntRange extends AbstractIntRange {
         }
     }
 
-    protected DiscontiguousIntRange(@Nonnull IntRange range, Integer fromMember, Integer toMember) {
+    BitsetIntRange(@Nonnull IntRange range, Integer fromMember, Integer toMember) {
+
         super(new AbstractIntRange.Initializer() {
             private Integer first, last, size;
 
@@ -107,6 +108,7 @@ public class DiscontiguousIntRange extends AbstractIntRange {
 
     @Override
     public PeekingIterator<Integer> iterator() {
+
         return Iterators.peekingIterator(new AbstractIterator<Integer>() {
             int nextMember = first() - 1;
 
@@ -126,10 +128,10 @@ public class DiscontiguousIntRange extends AbstractIntRange {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!canEqualWith(obj)) {
             return false;
         }
-        final DiscontiguousIntRange other = (DiscontiguousIntRange) obj;
+        final BitsetIntRange other = (BitsetIntRange) obj;
         if (this.size() != other.size() || this.first() != other.first() || this.last() != other.last()) {
             return false;
         }

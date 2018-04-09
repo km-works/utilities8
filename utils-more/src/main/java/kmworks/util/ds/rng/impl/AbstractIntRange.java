@@ -1,5 +1,5 @@
 /*
- *  Copyright (C) 2005-2017 Christian P. Lerch, Vienna, Austria.
+ *  Copyright (C) 2005-2018 Christian P. Lerch, Vienna, Austria.
  *
  *  This program is free software; you can redistribute it and/or modify it under
  *  the terms of the GNU General Public License as published by the Free
@@ -16,15 +16,14 @@
  */
 package kmworks.util.ds.rng.impl;
 
+import kmworks.util.ObjectUtil;
+import kmworks.util.base.Equals;
 import kmworks.util.ds.rng.IntRange;
 import kmworks.util.lambda.Function0;
 
-import java.util.SortedSet;
+import java.util.Iterator;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static kmworks.util.StringPool.MUST_NOT_BE_EMPTY_MSG;
-import static kmworks.util.StringPool.MUST_NOT_BE_NULL_MSG;
 import static kmworks.util.StringPool.OUT_OF_RANGE_MSG;
 
 /**
@@ -32,7 +31,7 @@ import static kmworks.util.StringPool.OUT_OF_RANGE_MSG;
  *
  * @author cpl
  */
-abstract class AbstractIntRange implements IntRange {
+abstract class AbstractIntRange implements IntRange, Equals {
 
     private final int first;
     private final int last;
@@ -40,11 +39,11 @@ abstract class AbstractIntRange implements IntRange {
     private final Function0<?> initializer;
 
 
-    AbstractIntRange(Initializer init) {
-        this.first = init.getFirst();
-        this.last = init.getLast();
-        this.size = init.getSize();
-        this.initializer = init.getInitializer();
+    AbstractIntRange(Initializer initializer) {
+        this.first = initializer.getFirst();
+        this.last = initializer.getLast();
+        this.size = initializer.getSize();
+        this.initializer = initializer.get();
     }
 
 
@@ -67,10 +66,38 @@ abstract class AbstractIntRange implements IntRange {
         return initializer;
     }
 
+    @Override
+    public boolean canEqualWith(Object obj) {
+        return obj != null && getClass() == obj.getClass();
+    }
 
-    protected static int countMembersBetween(IntRange range, int first, int last) {
+
+    boolean memberEquals(IntRange a, IntRange b) {
+        if (a.size() != b.size()) return false;
+        Iterator<Integer> aIter = a.iterator(), bIter = b.iterator();
+        while (aIter.hasNext() && bIter.hasNext()) {
+            if (aIter.next() != bIter.next()) return false;
+        }
+        return true;
+    }
+
+    int hash(Iterator<Integer> iter) {
+        int result = 1;
+        while (iter.hasNext()) {
+            Integer value = iter.next();
+            int key = (value == null) ? 0 : ObjectUtil.hash(value);
+            result = (result * ObjectUtil.KNUTH_CONST) ^ key;
+        }
+        return result;
+    }
+
+    public boolean isInRange(int value, IntRange rng) {
+        return value >= rng.first() && value <= rng.last();
+    }
+
+    protected static int countMembersBetween(IntRange range, int from, int to) {
         int count = 0;
-        for (int value = first; value <= last; value++) {
+        for (int value = from; value <= to; value++) {
             if (range.contains(value)) {
                 count++;
             }
@@ -79,9 +106,8 @@ abstract class AbstractIntRange implements IntRange {
     }
 
     protected static Integer firstMemberAtOrAbove(IntRange range, int value) {
-        if (value < range.first() || value > range.last()) {
-            throw new IllegalArgumentException("value " + OUT_OF_RANGE_MSG);
-        }
+        checkArgument(value < range.first() || value > range.last(),
+                "value " + OUT_OF_RANGE_MSG);
         while (value <= range.last() && !range.contains(value)) {
             value++;
         }
@@ -89,33 +115,21 @@ abstract class AbstractIntRange implements IntRange {
     }
 
     protected static Integer firstMemberBelow(IntRange range, int value) {
-        if (value < range.first() || value > range.last()) {
-            throw new IllegalArgumentException("value " + OUT_OF_RANGE_MSG);
-        }
+        checkArgument(value < range.first() || value > range.last(),
+                "value " + OUT_OF_RANGE_MSG);
         do {
             value--;
         } while (value >= range.first() && !range.contains(value));
         return value >= range.first() ? value : null;
     }
 
-    protected static SortedSet<Integer> checkNotNullOrEmpty(SortedSet<Integer> set) {
-        checkNotNull(set, "sortedSet " + MUST_NOT_BE_NULL_MSG);
-        checkArgument(!set.isEmpty(), "sortedSet " + MUST_NOT_BE_EMPTY_MSG);
-        return set;
-    }
-
     interface Initializer {
-
         int getFirst();
-
         int getLast();
-
         int getSize();
-
-        default Function0<?> getInitializer() {
+        default Function0<?> get() {
             return () -> null;
         }
-
     }
 
 }

@@ -21,16 +21,13 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import kmworks.util.ObjectUtil;
 
-import java.util.Arrays;
-import java.util.Iterator;
-
 /**
  *
  * @author cpl
  */
-public final class ContiguousIntRange extends AbstractIntRange {
+public final class CompactIntRange extends AbstractIntRange {
 
-    ContiguousIntRange(Integer first, Integer last) {
+    CompactIntRange(Integer first, Integer last) {
         super(new AbstractIntRange.Initializer() {
             @Override public int getFirst() { return first; }
             @Override public int getLast() { return last; }
@@ -62,10 +59,10 @@ public final class ContiguousIntRange extends AbstractIntRange {
         if (this == obj) {
             return true;
         }
-        if (obj == null || getClass() != obj.getClass()) {
+        if (!canEqualWith(obj)) {
             return false;
         }
-        final DiscontiguousIntRange other = (DiscontiguousIntRange) obj;
+        final CompactIntRange other = (CompactIntRange) obj;
         return this.size() == other.size()
                 && this.first() == other.first()
                 && this.last() == other.last();
@@ -73,7 +70,7 @@ public final class ContiguousIntRange extends AbstractIntRange {
 
     @Override
     public int hashCode() {
-        return ObjectUtil.hash((int)size(), (int)first(), (int)last());
+        return ObjectUtil.hash(size(), first(), last());
     }
 
 
