@@ -8,7 +8,6 @@ import kmworks.util.ds.rng.IntRange;
 import kmworks.util.ds.rng.IntRangeFactory;
 
 import javax.annotation.Nonnull;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -34,13 +33,9 @@ public class BitsetIntRange extends AbstractIntRange {
         }
     }
 
-    BitsetIntRange(@Nonnull Set<Integer> set) {
+    BitsetIntRange(@Nonnull SortedSet<Integer> sortedSet) {
 
         super(new AbstractIntRange.Initializer() {
-            private final SortedSet<Integer> sortedSet = set instanceof SortedSet
-                    ? (SortedSet<Integer>) set
-                    : new TreeSet(set);
-
             @Override
             public int getFirst() {
                 return checkNotEmpty(sortedSet).first();
@@ -59,7 +54,7 @@ public class BitsetIntRange extends AbstractIntRange {
 
         buckets = initBuckets(span() - 1);
 
-        for (int value : set) {
+        for (int value : sortedSet) {
             setMember(value);
         }
     }
@@ -217,7 +212,7 @@ public class BitsetIntRange extends AbstractIntRange {
         }
 
         public IntRange build() {
-            return IntRangeFactory.createIntRange(set);
+            return IntRangeFactory.createBitsetIntRange(set);
         }
 
     }
