@@ -36,7 +36,7 @@ public class DiscontiguousIntRangeTest {
 
     @Test
     public void testContains() {
-        IntRange range = IntRangeFactory.createIntRangePiecewise(new SegmentedIntRange.Builder()
+        IntRange range = IntRangeFactory.createSegmentedIntRange(new SegmentedIntRange.Builder()
                 .addRange(10, 20)
                 .add(30)
                 .addRange(40, 50)

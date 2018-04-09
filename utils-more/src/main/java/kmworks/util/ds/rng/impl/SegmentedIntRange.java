@@ -47,7 +47,7 @@ public final class SegmentedIntRange extends AbstractIntRange {
     /**
      * Construct a minimally SegmentedIntRange from an unordered list of possibly overlapping IntRange pieces.
      * After sorting the given list of IntRange pieces, successive, overlapping pieces will be consolidated into
-     * a single constituting segment, while non-overlapping pieces will be added unmodified.
+     * a single constituting segment, while non-overlapping pieces will be added as is.
      * @param pieces unordered list of possibly overlapping IntRange pieces
      */
     @SuppressWarnings("unchecked")
