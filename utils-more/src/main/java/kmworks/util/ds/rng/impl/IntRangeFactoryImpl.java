@@ -5,23 +5,29 @@ import kmworks.util.ds.rng.IntRange;
 import javax.annotation.Nonnull;
 import java.util.List;
 import java.util.Set;
+import java.util.SortedSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 public class IntRangeFactoryImpl {
 
-    public CompactIntRange createIntRange(int first, int last) {
+    public CompactIntRange createCompactIntRange(int first, int last) {
         return new CompactIntRange(first, last);
     }
 
-    public BitsetIntRange createIntRange(@Nonnull final Set<Integer> set) {
-        checkNotNull(set);
-        return new BitsetIntRange(set);
+    public BitsetIntRange createBitsetIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
+        checkNotNull(sortedSet);
+        return new BitsetIntRange(sortedSet);
     }
 
-    public SegmentedIntRange createIntRange(@Nonnull final List<IntRange> pieces) {
+    public SegmentedIntRange createSegmentedIntRange(@Nonnull final List<IntRange> pieces) {
         checkNotNull(pieces);
         return new SegmentedIntRange(pieces);
+    }
+
+    public SegmentedIntRange createSegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
+        checkNotNull(sortedSet);
+        return new SegmentedIntRange(sortedSet);
     }
 
 }

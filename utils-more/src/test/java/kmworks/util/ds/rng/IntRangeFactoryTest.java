@@ -13,7 +13,7 @@ public class IntRangeFactoryTest {
 
     @Test
     public void testCreateContiguousIntRange() {
-        IntRange rng = IntRangeFactory.createIntRange(1, 10);
+        IntRange rng = IntRangeFactory.createCompactIntRange(1, 10);
         assertTrue(rng instanceof CompactIntRange);
         assertEquals(10, rng.span());
         assertEquals(rng.size(), rng.span());
@@ -28,7 +28,7 @@ public class IntRangeFactoryTest {
     @Test
     public void testCreateDiscontiguousIntRange() {
         Set<Integer> set = new ImmutableSet.Builder<Integer>().add(1,3,7,10).build();
-        IntRange rng = IntRangeFactory.createIntRange(set);
+        IntRange rng = IntRangeFactory.createBitsetIntRange(set);
         assertTrue(rng instanceof BitsetIntRange);
         assertEquals(10, rng.span());
         assertNotSame(rng.size(), rng.span());
