@@ -5,11 +5,9 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.PeekingIterator;
 import kmworks.util.ObjectUtil;
 import kmworks.util.ds.rng.IntRange;
-import kmworks.util.ds.rng.IntRangeFactory;
 
 import javax.annotation.Nonnull;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static kmworks.util.StringPool.MUST_NOT_BE_EMPTY_MSG;
@@ -33,9 +31,12 @@ public class BitsetIntRange extends AbstractIntRange {
         }
     }
 
-    BitsetIntRange(@Nonnull SortedSet<Integer> sortedSet) {
+    BitsetIntRange(@Nonnull SortedSet<Integer> sortedSet, IntRange.Bounds bounds) {
 
         super(new AbstractIntRange.Initializer() {
+            @Override
+            public IntRange.Bounds getBounds() {return bounds; }
+
             @Override
             public int getFirst() {
                 return checkNotEmpty(sortedSet).first();
@@ -59,10 +60,13 @@ public class BitsetIntRange extends AbstractIntRange {
         }
     }
 
-    BitsetIntRange(@Nonnull IntRange range, Integer fromMember, Integer toMember) {
+    BitsetIntRange(@Nonnull IntRange range, Integer fromMember, Integer toMember, Bounds bounds) {
 
         super(new AbstractIntRange.Initializer() {
             private Integer first, last, size;
+
+            @Override
+            public Bounds getBounds() {return bounds; }
 
             @Override
             public int getFirst() {
@@ -149,7 +153,7 @@ public class BitsetIntRange extends AbstractIntRange {
         return ObjectUtil.deepHash(size(), first(), last(), buckets);
     }
 
-
+    /*
     public static class Builder {
 
         private final SortedSet<Integer> set;
@@ -212,10 +216,11 @@ public class BitsetIntRange extends AbstractIntRange {
         }
 
         public IntRange build() {
-            return IntRangeFactory.createBitsetIntRange(set);
+            return IntRangeFactory.withBounds(bounds()).createBitsetIntRange(set);
         }
 
     }
+    */
 
     private boolean isMember(int value) {
         return (buckets[bucketIdx(value)] & BIT_MASK[bitIdx(value)]) != 0;

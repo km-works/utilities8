@@ -17,6 +17,8 @@
 package kmworks.util.io;
 
 import java.io.File;
+import java.net.URL;
+
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -68,6 +70,20 @@ public class FileUtilTest {
     public void testDeleteDirTree03() {
         final File rootDirOrFile = new File(TEST_ROOT, "test03");
         doDeleteDirTreeTest(rootDirOrFile);
+    }
+
+    @Test
+    public void testFileHash01() {
+        URL url = com.google.common.io.Resources.getResource(FileUtil.class,"test.bin");
+        File testFile = new File(url.getPath());
+        System.out.println((testFile.toString()));
+        assertTrue(testFile.exists());
+        long start = System.nanoTime();
+        String hash = FileUtil.getFileHash(testFile);
+        long end = System.nanoTime(), time = (end-start)/1000;
+        System.out.println("Hash:   " + hash);
+        System.out.println("Timing: " + time + " µs");
+        System.out.println("Speed:  " + Math.round(testFile.length()*10.0/time)/10.0 + " MB/sec");
     }
     
     private static void doDeleteDirTreeTest(File rootDirOrFile) {

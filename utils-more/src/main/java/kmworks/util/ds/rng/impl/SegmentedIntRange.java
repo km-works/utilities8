@@ -12,22 +12,19 @@
  *  details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
+ *  along withBounds this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
 package kmworks.util.ds.rng.impl;
 
 import static com.google.common.base.Preconditions.*;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.*;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
-
-import com.google.common.collect.Iterators;
-import com.google.common.collect.Lists;
-import com.google.common.collect.PeekingIterator;
 
 import static kmworks.util.base.Preconditions.*;
 import kmworks.util.ds.rng.IntRange;
@@ -51,12 +48,15 @@ public final class SegmentedIntRange extends AbstractIntRange {
      * @param pieces unordered list of possibly overlapping IntRange pieces
      */
     @SuppressWarnings("unchecked")
-    SegmentedIntRange(@Nonnull final List<IntRange> pieces) {
+    SegmentedIntRange(@Nonnull final List<IntRange> pieces, Bounds bounds) {
 
         super(new AbstractIntRange.Initializer() {
             private @Nonnull final List<IntRange> orderedPieces =
                     checkNotEmpty(Lists.newArrayList(new TreeSet<IntRange>(checkNotNull(pieces))));
             private final ImmutableList.Builder<Segment> elementsBuilder = new ImmutableList.Builder<>();
+
+            @Override
+            public Bounds getBounds() { return bounds; }
 
             @Override
             public int getFirst() {
@@ -102,10 +102,13 @@ public final class SegmentedIntRange extends AbstractIntRange {
      * @param sortedSet sorted set of integers
      */
     @SuppressWarnings("unchecked")
-    SegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
+    SegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet, Bounds bounds) {
 
         super(new AbstractIntRange.Initializer() {
             private final ImmutableList.Builder<Segment> elementsBuilder = new ImmutableList.Builder<>();
+
+            @Override
+            public Bounds getBounds() { return bounds; }
 
             @Override
             public int getFirst() {
@@ -132,7 +135,7 @@ public final class SegmentedIntRange extends AbstractIntRange {
                         curr += 1;
                     }
 
-                    final IntRange range = new CompactIntRange(first, curr - 1);
+                    final IntRange range = new CompactIntRange(first, curr - 1, bounds);
                     elementsBuilder.add(new Segment(range, 0));
                     offset += range.span();
 
@@ -156,9 +159,17 @@ public final class SegmentedIntRange extends AbstractIntRange {
 
     @Override
     public PeekingIterator<Integer> iterator() {
-        return (PeekingIterator<Integer>) Iterators.concat(segments.stream()
+
+        Iterator<Integer> aggregateIterator = Iterators.concat(segments.stream()
                 .map(e -> e.range.iterator())
                 .collect(Collectors.toList()).iterator());
+
+        return Iterators.peekingIterator(new AbstractIterator<Integer>() {
+
+            @Override protected Integer computeNext() {
+                return aggregateIterator.hasNext() ? aggregateIterator.next() : endOfData();
+            }
+        });
     }
 
     @Override
@@ -173,7 +184,7 @@ public final class SegmentedIntRange extends AbstractIntRange {
         final SegmentedIntRange other = (SegmentedIntRange) obj;
         return this.first() == other.first()        // checked for optimization purposes only
                 && this.last() == other.last()      // ditto
-                && memberEquals(this, other);
+                && IntRange.memberEquals(this, other);
     }
 
     @Override
@@ -220,72 +231,6 @@ public final class SegmentedIntRange extends AbstractIntRange {
             this.range = range;
             this.offset = offset;
         }
-    }
-
-    public static class Builder {
-        private BitsetIntRange.Builder memberBuilder;
-
-        public Builder() {
-            memberBuilder = new BitsetIntRange.Builder();
-        }
-
-        public Builder add(int value) {
-            memberBuilder.add(value);
-            return this;
-        }
-
-        public Builder add(IntRange range) {
-            memberBuilder.addRange(range.first(), range.last());
-            return this;
-        }
-
-        public Builder addRange(int first, int last) {
-            memberBuilder.addRange(first, last);
-            return this;
-        }
-
-        public Builder add(int... values) {
-            for (int value : values) {
-                memberBuilder.add(value);
-            }
-            return this;
-        }
-
-        public Builder addIntegers(Iterable<Integer> iter) {
-            for (Integer value : iter) {
-                if (value != null) {
-                    memberBuilder.add(value);
-                }
-            }
-            return this;
-        }
-
-        public Builder addRanges(Iterable<IntRange> iter) {
-            for (IntRange range : iter) {
-                if (range != null) {
-                    add(range);
-                }
-            }
-            return this;
-        }
-
-        public List<IntRange> build() {
-            ImmutableList.Builder<IntRange> listBuilder = new ImmutableList.Builder<>();
-            IntRange range = memberBuilder.build();
-            int curr = range.first();
-            do {
-                int first = curr;
-                while (range.contains(curr) && curr <= range.last()) {
-                    curr += 1;
-                }
-                listBuilder.add(new CompactIntRange(first, curr - 1));
-                while (curr <= range.last() && !range.contains(curr)) {
-                    curr += 1;
-                }
-            } while (curr <= range.last());
-            return listBuilder.build();
-        }
-
     }
 
 }

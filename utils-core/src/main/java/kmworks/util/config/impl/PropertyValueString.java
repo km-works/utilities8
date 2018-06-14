@@ -17,7 +17,7 @@
 package kmworks.util.config.impl;
 
 import java.io.Serializable;
-import kmworks.util.StringEscapeUtil;
+import kmworks.util.strings.StringEscapeUtil;
 import kmworks.util.StringPool;
 import kmworks.util.config.PropertyValueType;
 

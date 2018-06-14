@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2016 Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * Copyright (C) 2005-2018 Christian P. Lerch <christian.p.lerch[at]gmail.com>
  *  
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

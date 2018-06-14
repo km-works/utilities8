@@ -13,7 +13,7 @@
  *   version 3 for details.
  *
  *   You should have received a copy of the GNU General Public License along
- *   with this distribution. If not, see <http://km-works.eu/res/GPL.txt> or
+ *   withBounds this distribution. If not, see <http://km-works.eu/res/GPL.txt> or
  *   <http://www.gnu.org/licenses/gpl-3.0.html>.
  */
 package kmworks.util.ds;
@@ -44,7 +44,7 @@ public final class PeekingArrayListStack<T> implements PeekingStack<T>{
   }
 
   /**
-   * Create a growable stack for item type <T> with given initial <size>
+   * Create a growable stack for item type <T> withBounds given initial <size>
    * @param size
    */
   public PeekingArrayListStack(int size) {

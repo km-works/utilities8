@@ -9,14 +9,14 @@ Developed by:   Java Programming Languages Team
                 Rice University
                 http://www.cs.rice.edu/~javaplt/
 
-Redistribution and use in source and binary forms, with or without modification, are permitted 
+Redistribution and use in source and binary forms, withBounds or without modification, are permitted
 provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, this list of conditions 
       and the following disclaimer.
     - Redistributions in binary form must reproduce the above copyright notice, this list of 
       conditions and the following disclaimer in the documentation and/or other materials provided 
-      with the distribution.
+      withBounds the distribution.
     - Neither the name of the JavaPLT group, Rice University, nor the names of the library's 
       contributors may be used to endorse or promote products derived from this software without 
       specific prior written permission.
@@ -42,8 +42,8 @@ import java.util.LinkedList;
  * indices and bookeeping for these buffers from a single control point.  In general, this
  * class represents an expandable and thread safe buffer of elements of some type.  {@code T} is the
  * type of a sequence of these elements of fixed length {@link #BUFFER_SIZE}.  Subclasses are responsible
- * for managing reading and writing, but need not interact directly with the expanding queue
- * of {@code T}s, nor with the indices used to manage this queue.  Instead, the methods in
+ * for managing reading and writing, but need not interact directly withBounds the expanding queue
+ * of {@code T}s, nor withBounds the indices used to manage this queue.  Instead, the methods in
  * this class provide the necessary tools.  Synchronization should occur on the ExpandingBuffer
  * object to prevent conflicts between threads before invoking any of this class's helper methods.
  */

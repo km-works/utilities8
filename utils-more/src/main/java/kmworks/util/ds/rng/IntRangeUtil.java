@@ -1,10 +1,14 @@
 package kmworks.util.ds.rng;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import kmworks.util.lambda.LambdaUtil;
 import kmworks.util.lambda.Predicate1;
 
 import javax.annotation.Nonnull;
+import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public final class IntRangeUtil {
 
@@ -12,12 +16,7 @@ public final class IntRangeUtil {
 
     public static IntPredicate of(@Nonnull final Predicate1<Integer> p) {
         Objects.requireNonNull(p);
-        return new IntPredicate() {
-            @Override
-            public boolean contains(int value) {
-                return p.test(value);
-            }
-        };
+        return (ch) -> p.test(ch);
     }
 
     public static IntPredicate negate(@Nonnull final IntPredicate p) {
@@ -46,6 +45,16 @@ public final class IntRangeUtil {
     public static Predicate1<Integer> asPredicate(@Nonnull final IntPredicate p) {
         Objects.requireNonNull(p);
         return i -> p.contains(i);
+    }
+
+    public static Set<Integer> codepointsFrom(CharSequence s) {
+        ImmutableSet.Builder<Integer> builder = new ImmutableSet.Builder<>();
+        int i=0;
+        while (i < s.length()) {
+            builder.add((int) s.charAt(i));
+            i += Character.charCount(i);
+        }
+        return builder.build();
     }
 
 }

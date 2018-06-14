@@ -23,6 +23,7 @@ import com.google.common.io.BaseEncoding;
 import com.google.common.io.Files;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import javax.annotation.Nonnull;
@@ -57,7 +58,7 @@ public final class FileUtil {
         Files.copy(srcFile, dstFile);
     }
 
-    public static byte[] readFileBytes(@Nonnull File file) {
+    public static byte[] readAllBytes(@Nonnull File file) {
         checkNotNull(file);
         try {
             return Files.toByteArray(file);
@@ -81,11 +82,17 @@ public final class FileUtil {
 
     public static String getFileHash(@Nonnull File file) {
         checkNotNull(file);
-        final Hasher hasher = Hashing.md5().newHasher();
+        final Hasher hasher = Hashing.murmur3_128().newHasher();
         try {
-            hasher.putBytes(Files.toByteArray(file));
-            final byte[] md5 = hasher.hash().asBytes();
-            return BaseEncoding.base16().encode(md5).toLowerCase();
+            try (InputStream in = Files.asByteSource(file).openBufferedStream()) {
+                byte[] buffer = new byte[16*1024];
+                int size;
+                while ((size = in.read(buffer)) != -1) {
+                    hasher.putBytes(buffer, 0, size);
+                }
+            }
+            final byte[] murmur3 = hasher.hash().asBytes();
+            return BaseEncoding.base16().encode(murmur3).toLowerCase();
         } catch (IOException ex) {
             final String errMsg = "File not found: " + file.getAbsolutePath();
             throw new RuntimeException(errMsg, ex);

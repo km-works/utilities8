@@ -2,6 +2,8 @@ package kmworks.util.base;
 
 import kmworks.util.StringPool;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.Collection;
 
 public final class Preconditions {
@@ -30,7 +32,8 @@ public final class Preconditions {
      * @throws IllegalArgumentException if {@code collection} is empty
      */
     //@CanIgnoreReturnValue
-    public static <T, C extends Collection<T>> C checkNotEmpty(C collection, /* @NullableDecl */ String errorMessage) {
+    public static <T, C extends Collection<T>> C checkNotEmpty(
+            @Nonnull final C collection, @Nullable String errorMessage) {
         if (errorMessage == null) errorMessage = StringPool.MUST_NOT_BE_NULL_OR_EMPTY_MSG;
         if (collection == null) {
             throw new NullPointerException(errorMessage);
@@ -41,5 +44,17 @@ public final class Preconditions {
         return collection;
     }
 
-
+    public static String checkNotEmpty(@Nonnull final String s) {
+        return checkNotEmpty(s, null);
+    }
+    public static String checkNotEmpty(@Nonnull final String s, @Nullable String errorMessage) {
+        if (errorMessage == null) errorMessage = StringPool.MUST_NOT_BE_NULL_OR_EMPTY_MSG;
+        if (s == null) {
+            throw new NullPointerException(errorMessage);
+        }
+        if (s.isEmpty()) {
+            throw new IllegalArgumentException(errorMessage);
+        }
+        return s;
+    }
 }

@@ -16,19 +16,20 @@
  */
 package kmworks.util.internal.commons.lang3;
 
+import kmworks.util.strings.StringTransformer;
+
 import java.io.IOException;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.util.Locale;
 
 /**
- * An API for translating text. 
- * Its core use is to escape and unescape text. Because escaping and unescaping 
- * is completely contextual, the API does not present two separate signatures.
+ * An API for transforming text.
+ * Its core use is to escape and unescape character sequences.
  * 
  * @since 3.0
  */
-public abstract class CharSequenceTranslator {
+public abstract class CharSequenceTranslator implements StringTransformer {
 
     static final char[] HEX_DIGITS = new char[] {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F'};
 
@@ -44,6 +45,7 @@ public abstract class CharSequenceTranslator {
      * @return int count of codepoints consumed
      * @throws IOException if and only if the Writer produces an IOException
      */
+    @Override
     public abstract int translate(CharSequence input, int index, Writer out) throws IOException;
 
     /**
@@ -51,6 +53,7 @@ public abstract class CharSequenceTranslator {
      * @param input CharSequence to be translated
      * @return String output of translation
      */
+    @Override
     public final String translate(final CharSequence input) {
         if (input == null) {
             return null;
@@ -73,6 +76,7 @@ public abstract class CharSequenceTranslator {
      * @param out Writer to translate the text to
      * @throws IOException if and only if the Writer produces an IOException
      */
+    @Override
     public final void translate(final CharSequence input, final Writer out) throws IOException {
         if (out == null) {
             throw new IllegalArgumentException("The Writer must not be null");
@@ -114,7 +118,8 @@ public abstract class CharSequenceTranslator {
      * @param translators CharSequenceTranslator array of translators to merge with this one
      * @return CharSequenceTranslator merging this translator with the others
      */
-    public final CharSequenceTranslator with(final CharSequenceTranslator... translators) {
+    @Override
+    public final StringTransformer with(final StringTransformer... translators) {
         final CharSequenceTranslator[] newArray = new CharSequenceTranslator[translators.length + 1];
         newArray[0] = this;
         System.arraycopy(translators, 0, newArray, 1, translators.length);
@@ -128,7 +133,7 @@ public abstract class CharSequenceTranslator {
      * @param codepoint The codepoint to convert.
      * @return An upper case hexadecimal <code>String</code>
      */
-    public static String hex(final int codepoint) {
+    static String hex(final int codepoint) {
         return Integer.toHexString(codepoint).toUpperCase(Locale.ENGLISH);
     }
 

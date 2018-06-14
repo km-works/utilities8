@@ -6,6 +6,7 @@ import javax.annotation.Nonnull;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+@FunctionalInterface
 public interface IntPredicate {
 
     boolean contains(int value);
@@ -37,5 +38,9 @@ public interface IntPredicate {
         checkNotNull(p);
         return p::test;
     }
+
+    IntPredicate FALSE = (ch) -> false;
+
+    IntPredicate TRUE = (ch) -> true;
 
 }

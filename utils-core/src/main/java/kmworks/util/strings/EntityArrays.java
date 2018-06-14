@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.internal.commons.lang3;
+package kmworks.util.strings;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -38,7 +38,9 @@ package kmworks.util.internal.commons.lang3;
  *
  * @since 3.0
  */
-public class EntityArrays {
+public final class EntityArrays {
+
+    private EntityArrays() {}
 
     /**
      * Mapping to escape <a href="https://secure.wikimedia.org/wikipedia/en/wiki/ISO/IEC_8859-1">ISO-8859-1</a>
@@ -46,7 +48,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] ISO8859_1_ESCAPE() {
+    static String[][] ISO8859_1_ESCAPE() {
         return ISO8859_1_ESCAPE.clone();
     }
     private static final String[][] ISO8859_1_ESCAPE = {
@@ -153,7 +155,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] ISO8859_1_UNESCAPE() {
+    static String[][] ISO8859_1_UNESCAPE() {
         return ISO8859_1_UNESCAPE.clone();
     }
     private static final String[][] ISO8859_1_UNESCAPE = invert(ISO8859_1_ESCAPE);
@@ -165,7 +167,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] HTML40_EXTENDED_ESCAPE() {
+    static String[][] HTML40_EXTENDED_ESCAPE() {
         return HTML40_EXTENDED_ESCAPE.clone();
     }
     private static final String[][] HTML40_EXTENDED_ESCAPE = {
@@ -370,7 +372,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] HTML40_EXTENDED_UNESCAPE() {
+    static String[][] HTML40_EXTENDED_UNESCAPE() {
         return HTML40_EXTENDED_UNESCAPE.clone();
     }
     private static final String[][] HTML40_EXTENDED_UNESCAPE = invert(HTML40_EXTENDED_ESCAPE);
@@ -382,7 +384,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] BASIC_ESCAPE() {
+    static String[][] BASIC_ESCAPE() {
         return BASIC_ESCAPE.clone();
     }
     private static final String[][] BASIC_ESCAPE = {
@@ -397,7 +399,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] BASIC_UNESCAPE() {
+    static String[][] BASIC_UNESCAPE() {
         return BASIC_UNESCAPE.clone();
     }
     private static final String[][] BASIC_UNESCAPE = invert(BASIC_ESCAPE);
@@ -407,7 +409,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] APOS_ESCAPE() {
+    static String[][] APOS_ESCAPE() {
         return APOS_ESCAPE.clone();
     }
     private static final String[][] APOS_ESCAPE = {
@@ -419,7 +421,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] APOS_UNESCAPE() {
+    static String[][] APOS_UNESCAPE() {
         return APOS_UNESCAPE.clone();
     }
     private static final String[][] APOS_UNESCAPE = invert(APOS_ESCAPE);
@@ -431,7 +433,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] JAVA_CTRL_CHARS_ESCAPE() {
+    static String[][] JAVA_CTRL_CHARS_ESCAPE() {
         return JAVA_CTRL_CHARS_ESCAPE.clone();
     }
     private static final String[][] JAVA_CTRL_CHARS_ESCAPE = {
@@ -447,7 +449,7 @@ public class EntityArrays {
      *
      * @return the mapping table
      */
-    public static String[][] JAVA_CTRL_CHARS_UNESCAPE() {
+    static String[][] JAVA_CTRL_CHARS_UNESCAPE() {
         return JAVA_CTRL_CHARS_UNESCAPE.clone();
     }
     private static final String[][] JAVA_CTRL_CHARS_UNESCAPE = invert(JAVA_CTRL_CHARS_ESCAPE);
@@ -458,7 +460,7 @@ public class EntityArrays {
      * @param array String[][] to be inverted
      * @return String[][] inverted array
      */
-    public static String[][] invert(final String[][] array) {
+    static String[][] invert(final String[][] array) {
         final String[][] newarray = new String[array.length][2];
         for (int i = 0; i < array.length; i++) {
             newarray[i][0] = array[i][1];

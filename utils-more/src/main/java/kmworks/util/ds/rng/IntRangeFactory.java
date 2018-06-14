@@ -10,33 +10,50 @@ import static kmworks.util.base.Preconditions.checkNotEmpty;
 
 public class IntRangeFactory {
 
-    private static final IntRangeFactoryImpl factory = new IntRangeFactoryImpl();
+    private final IntRangeFactoryImpl factory;
 
-    public static IntRange createCompactIntRange(int first, int last) {
+    public static IntRangeFactory noBounds() { return new IntRangeFactory(); }
+    public static IntRangeFactory withBounds(IntRange.Bounds bounds) {
+        return new IntRangeFactory(bounds);
+    }
+    public static IntRangeFactory withUnicodeBounds() { return new IntRangeFactory(IntRange.UNICODE_BOUNDS); }
+
+    private IntRangeFactory() {
+        factory = new IntRangeFactoryImpl();
+    }
+    private IntRangeFactory(IntRange.Bounds bounds) {
+        factory = new IntRangeFactoryImpl(bounds);
+    }
+
+    public IntRangeBuilder builder() {
+        return IntRangeBuilder.withBounds(factory.getBounds());
+    }
+
+    public IntRange createCompactIntRange(int first, int last) {
         return factory.createCompactIntRange(first, last);
     }
 
-    public static IntRange createBitsetIntRange(@Nonnull final Set<Integer> set) {
+    public IntRange createBitsetIntRange(@Nonnull final Set<Integer> set) {
         return createBitsetIntRange(new TreeSet(set));
     }
 
-    public static IntRange createBitsetIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
+    public IntRange createBitsetIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
         return factory.createBitsetIntRange(sortedSet);
     }
 
-   public static IntRange createSegmentedIntRange(@Nonnull final IntRange... pieces) {
+    public IntRange createSegmentedIntRange(@Nonnull final IntRange... pieces) {
         return createSegmentedIntRange(checkNotEmpty(Arrays.asList(checkNotNull(pieces))));
     }
 
-    public static IntRange createSegmentedIntRange(@Nonnull final List<IntRange> pieces) {
+    public IntRange createSegmentedIntRange(@Nonnull final List<IntRange> pieces) {
         return factory.createSegmentedIntRange(pieces);
     }
 
-    public static IntRange createSegmentedIntRange(@Nonnull final Set<Integer> set) {
+    public IntRange createSegmentedIntRange(@Nonnull final Set<Integer> set) {
         return createSegmentedIntRange(new TreeSet(set));
     }
 
-    public static IntRange createSegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
+    public IntRange createSegmentedIntRange(@Nonnull final SortedSet<Integer> sortedSet) {
         return factory.createSegmentedIntRange(sortedSet);
     }
 

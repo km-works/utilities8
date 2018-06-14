@@ -36,6 +36,7 @@ package kmworks.util.internal.commons.lang3;
 import java.io.IOException;
 import java.io.Writer;
 import kmworks.util.ArrayUtil;
+import kmworks.util.strings.StringTransformer;
 
 /**
  * Executes a sequence of translators one after the other. Execution ends whenever 
@@ -43,14 +44,14 @@ import kmworks.util.ArrayUtil;
  */
 public class AggregateTranslator extends CharSequenceTranslator {
 
-    private final CharSequenceTranslator[] translators;
+    private final StringTransformer[] translators;
 
     /**
      * Specify the translators to be used at creation time. 
      *
      * @param translators CharSequenceTranslator array to aggregate
      */
-    public AggregateTranslator(final CharSequenceTranslator... translators) {
+    public AggregateTranslator(final StringTransformer... translators) {
         this.translators = ArrayUtil.clone(translators);
     }
 
@@ -61,7 +62,7 @@ public class AggregateTranslator extends CharSequenceTranslator {
      */
     @Override
     public int translate(final CharSequence input, final int index, final Writer out) throws IOException {
-        for (final CharSequenceTranslator translator : translators) {
+        for (final StringTransformer translator : translators) {
             final int consumed = translator.translate(input, index, out);
             if(consumed != 0) {
                 return consumed;

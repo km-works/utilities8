@@ -12,7 +12,7 @@
  *  details.
  * 
  *  You should have received a copy of the GNU General Public License
- *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
+ *  along withBounds this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
 package kmworks.util.ds.rng.impl;
 
@@ -27,8 +27,10 @@ import kmworks.util.ObjectUtil;
  */
 public final class CompactIntRange extends AbstractIntRange {
 
-    CompactIntRange(Integer first, Integer last) {
+    CompactIntRange(Integer first, Integer last, Bounds bounds) {
+
         super(new AbstractIntRange.Initializer() {
+            @Override public Bounds getBounds() { return bounds; }
             @Override public int getFirst() { return first; }
             @Override public int getLast() { return last; }
             @Override public int getSize() { return last - first + 1; }
@@ -37,7 +39,7 @@ public final class CompactIntRange extends AbstractIntRange {
 
     @Override
     public boolean contains(int value) {
-        return value >= first() && value <= last();
+        return checkBounds(value) >= first() && value <= last();
     }
 
     @Override

@@ -9,14 +9,14 @@ Developed by:   Java Programming Languages Team
                 Rice University
                 http://www.cs.rice.edu/~javaplt/
 
-Redistribution and use in source and binary forms, with or without modification, are permitted 
+Redistribution and use in source and binary forms, withBounds or without modification, are permitted
 provided that the following conditions are met:
 
     - Redistributions of source code must retain the above copyright notice, this list of conditions 
       and the following disclaimer.
     - Redistributions in binary form must reproduce the above copyright notice, this list of 
       conditions and the following disclaimer in the documentation and/or other materials provided 
-      with the distribution.
+      withBounds the distribution.
     - Neither the name of the JavaPLT group, Rice University, nor the names of the library's 
       contributors may be used to endorse or promote products derived from this software without 
       specific prior written permission.
@@ -42,12 +42,12 @@ import kmworks.util.io.DirectInputStream;
 import kmworks.util.io.DirectOutputStream;
 
 /**
- * <p>A byte buffer of arbitrary size to be used with InputStreams and OutputStreams.  The
+ * <p>A byte buffer of arbitrary size to be used withBounds InputStreams and OutputStreams.  The
  * buffer is a FIFO queue of bytes.  It provides a {@link DirectOutputStream} for adding
  * bytes to the end and a {@link DirectInputStream} for pulling bytes from the front.
  * This allows behavior similar to that of a {@link java.io.PipedWriter} and {@link java.io.PipedReader},
  * but without any assumptions about access from different threads, without any restrictions on
- * the size of the buffer (so writing will never block), and <em>with</em> support for multiple
+ * the size of the buffer (so writing will never block), and <em>withBounds</em> support for multiple
  * readers or writers connected to the same source.  (If access is restricted to a single thread, 
  * care must be taken to never read when the buffer is empty.)</p>
  * 

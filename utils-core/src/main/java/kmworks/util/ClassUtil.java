@@ -14,7 +14,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
-package kmworks.util.internal.commons.lang3;
+package kmworks.util;
 
 /*
  * Licensed to the Apache Software Foundation (ASF) under one or more
@@ -43,9 +43,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import kmworks.util.ArrayUtil;
-import kmworks.util.StringPool;
-import kmworks.util.StringUtil;
 
 
 /**

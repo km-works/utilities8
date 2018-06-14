@@ -13,7 +13,7 @@
  *   version 3 for details.
  *
  *   You should have received a copy of the GNU General Public License along
- *   with this distribution. If not, see <http://km-works.eu/res/GPL.txt> or
+ *   withBounds this distribution. If not, see <http://km-works.eu/res/GPL.txt> or
  *   <http://www.gnu.org/licenses/gpl-3.0.html>.
  */
 package kmworks.util.ds;

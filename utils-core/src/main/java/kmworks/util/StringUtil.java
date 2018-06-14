@@ -87,8 +87,7 @@ public final class StringUtil {
      * @see Character#isWhitespace
      */
     public static boolean hasText(@Nullable CharSequence cs) {
-        if (!isNullOrEmpty(cs)) {
-            assert cs != null;
+        if (hasLength(cs)) {
             for (int i = 0; i < cs.length(); i++) {
                 if (!Character.isWhitespace(cs.charAt(i))) {
                     return true;

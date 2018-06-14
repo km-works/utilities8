@@ -1,47 +1,22 @@
-/*
- * Copyright (C) 2005-2016 Christian P. Lerch <christian.p.lerch[at]gmail.com>
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- */
-package kmworks.util.ds.rng.impl;
+package kmworks.util.ds.rng;
+
+import org.junit.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringReader;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Random;
-import java.util.SortedSet;
-
-import kmworks.util.ds.rng.CodepointRange;
-import kmworks.util.ds.rng.CodepointRangeUtil;
-import org.junit.Test;
+import java.util.*;
 
 import static org.junit.Assert.*;
 
-/**
- * @author Christian P. Lerch
- */
-public class BitsetCodepointRangeTest {
+public class IntRangeTest {
 
-    private BitsetCodepointRange.Builder randomBuilder(int setSize, int maxCodepoint) {
+    private IntRangeBuilder randomBuilder(int setSize) {
         final Random RANDOM = new Random();
-        final BitsetCodepointRange.Builder builder = new BitsetCodepointRange.Builder();
+        final IntRangeBuilder builder = IntRangeBuilder.withUnicodeBounds();
         for (int j = 0; j < setSize; j++) {
-            builder.add(RANDOM.nextInt(maxCodepoint));
+            builder.add(RANDOM.nextInt(IntRange.UNICODE_BOUNDS.upper));
         }
         return builder;
     }
@@ -53,21 +28,18 @@ public class BitsetCodepointRangeTest {
         System.out.print(s);
     }
 
-    private void print(CodepointRange cps) {
+    private void print(IntRange cps) {
         Writer w = new PrintWriter(System.out);
-        pln("\nCodepointRange: " + cps.toString());
+        pln("\nIntRange: " + cps.toString());
         try {
-            CodepointRangeUtil.toText(cps, w, 10);
+            IntRangeIO.toText(cps, w, 10);
             w.flush();
         } catch (IOException e) {}
     }
 
-    public BitsetCodepointRangeTest() {
-    }
-
     @Test
     public void test() throws Exception {
-        CodepointRange bs = BitsetCodepointRange.of(44, 50);
+        IntRange bs = IntRange.of(44, 50);
         assertTrue(!bs.contains(43));
         assertTrue(bs.contains(44));
         assertTrue(bs.contains(50));
@@ -77,7 +49,7 @@ public class BitsetCodepointRangeTest {
 
     @Test
     public void testSingularity() throws Exception {
-        CodepointRange bs = new BitsetCodepointRange.Builder()
+        IntRange bs = IntRangeBuilder.withUnicodeBounds()
                 .addRange(33000, 33000)
                 .add(33000)
                 .build();
@@ -92,7 +64,7 @@ public class BitsetCodepointRangeTest {
     public void testLoader() throws Exception {
         String initialBits = "  # uoöhef \n  30 -40  #p owr\n63\n\n128 #jnoö  wetä\n80-82";
         StringReader r = new StringReader(initialBits);
-        CodepointRange bs = CodepointRangeUtil.fromText(r, 10);
+        IntRange bs = IntRangeIO.fromText(r, 10);
         assertTrue(bs.size() == 16);
         assertTrue(bs.contains(30));
         assertTrue(bs.contains(40));
@@ -109,10 +81,10 @@ public class BitsetCodepointRangeTest {
      */
     @Test
     public void testNonEquals1() throws Exception {
-        CodepointRange bs1 = new BitsetCodepointRange.Builder()
+        IntRange bs1 = IntRangeBuilder.withUnicodeBounds()
                 .addRange(33000, 33000)
                 .build();
-        CodepointRange bs2 = new BitsetCodepointRange.Builder()
+        IntRange bs2 = IntRangeBuilder.withUnicodeBounds()
                 .addRange(32950, 33050)
                 .build();
         assertEquals(bs1.size(), 1);
@@ -124,49 +96,43 @@ public class BitsetCodepointRangeTest {
 
     @Test
     public void testEquals() throws Exception {
-        CodepointRange bs1 = new BitsetCodepointRange.Builder().addRange(5, 10).add(20).build();
-        CodepointRange bs2 = new BitsetCodepointRange.Builder().addRange(5, 10).add(20).build();
+        IntRange bs1 = IntRangeBuilder.withUnicodeBounds().addRange(5, 10).add(20).build();
+        IntRange bs2 = IntRangeBuilder.withUnicodeBounds().addRange(5, 10).add(20).build();
         assertEquals(bs1, bs2);
         assertEquals(bs1.hashCode(), bs2.hashCode());
     }
 
     @Test
     public void testSetEquivalence() {
-        final int maxCodepoint = 0xffff;
-        final int iterations = 1000;
+        final int iterations = 100;
 
         for (int i = 0; i < iterations; i++) {
-            final BitsetCodepointRange.Builder builder = randomBuilder(1000, maxCodepoint);
-            final SortedSet<Integer> set = builder.getSet();
-            final CodepointRange cps = builder.build();
+            final IntRangeBuilder builder = randomBuilder(100);
+            final SortedSet<Integer> set = builder.underlyingSet();
+            final IntRange cps = builder.build();
 
             assertEquals(set.size(), cps.size());
             assertTrue(set.first() == cps.first());
             assertTrue(set.last() == cps.last());
-
-            final Iterator<Integer> setIter = set.iterator();
-            final Iterator<Integer> bsIter = cps.iterator();
-            while (setIter.hasNext() && bsIter.hasNext()) {
-                assertEquals(setIter.next(), bsIter.next());
-            }
+            assertTrue(IntRange.memberEquals(set, cps.asSet()));
         }
     }
-  
+
     /*
     @Test
     public void testEmptyEquals1() {
-    CodepointRange bs1 = BitsetCodepointRange.of();
-    CodepointRange bs2 = BitsetCodepointRange.of();
+    IntRange bs1 = BitsetCodepointRange.of();
+    IntRange bs2 = BitsetCodepointRange.of();
     assertTrue(bs1 == bs2);
     assertEquals(bs1, bs2);
     }
 
     @Test
     public void testEmptyEquals2() {
-    CodepointRange bs1 = BitsetCodepointRange.of();
-    CodepointRange bs2 = BitsetCodepointRange.of(1,2,3);
-    CodepointRange bs3 = BitsetCodepointRange.of(4,5,6);
-    CodepointRange bs4 = bs2.intersect(bs3);  // -> yields EMPTY
+    IntRange bs1 = BitsetCodepointRange.of();
+    IntRange bs2 = BitsetCodepointRange.of(1,2,3);
+    IntRange bs3 = BitsetCodepointRange.of(4,5,6);
+    IntRange bs4 = bs2.intersect(bs3);  // -> yields empty IntRange
     assertTrue(bs1 == bs4);
     assertEquals(bs1, bs4);
     }
@@ -176,8 +142,8 @@ public class BitsetCodepointRangeTest {
 /*
     @Test
     public void testIntersect1() {
-        CodepointRange bs1 = BitsetCodepointRange.fromRange(10, 50);
-        CodepointRange bs2 = BitsetCodepointRange.fromRange(20, 60);
+        IntRange bs1 = BitsetCodepointRange.fromRange(10, 50);
+        IntRange bs2 = BitsetCodepointRange.fromRange(20, 60);
 
         assertEquals(bs1.size(), 41);
         assertEquals(bs1.size(), bs2.size());
@@ -197,8 +163,8 @@ public class BitsetCodepointRangeTest {
     @Test
     public void testUnion1() throws Exception {
         // bs1 << bs2, no overlap
-        CodepointRange bs1 = BitsetCodepointRange.of(20, 40);
-        CodepointRange bs2 = BitsetCodepointRange.of(50, 70);
+        IntRange bs1 = BitsetCodepointRange.of(20, 40);
+        IntRange bs2 = BitsetCodepointRange.of(50, 70);
         bs1 = bs1.union(bs2);
 
         assertTrue(bs1.contains(20));
@@ -213,8 +179,8 @@ public class BitsetCodepointRangeTest {
     @Test
     public void testUnion2() throws Exception {
         // bs1 >> bs2, no overlap
-        CodepointRange bs1 = BitsetCodepointRange.of(50, 70);
-        CodepointRange bs2 = BitsetCodepointRange.of(20, 40);
+        IntRange bs1 = BitsetCodepointRange.of(50, 70);
+        IntRange bs2 = BitsetCodepointRange.of(20, 40);
         bs1 = bs1.union(bs2);
 
         assertTrue(bs1.contains(20));
@@ -231,17 +197,17 @@ public class BitsetCodepointRangeTest {
     public void testRandomEquals() {
         long start, ende;
         long equalsDuration = 0, hashDuration = 0, newDuration = 0, buildDuration = 0;
-        final int ITERATIONS = 1000;
+        final int ITERATIONS = 100;
         final Random rand = new Random();
 
         for (int k = 1; k <= 10; k++) {
             int SET_SIZE = 100 * k;
             for (int i = 0; i < ITERATIONS; i++) {
-                final BitsetCodepointRange.Builder builder1 = new BitsetCodepointRange.Builder();
-                final BitsetCodepointRange.Builder builder2 = new BitsetCodepointRange.Builder();
+                final IntRangeBuilder builder1 = IntRangeBuilder.withUnicodeBounds();
+                final IntRangeBuilder builder2 = IntRangeBuilder.withUnicodeBounds();
                 start = System.nanoTime();
                 for (int j = 0; j < SET_SIZE; j++) {
-                    int value = rand.nextInt(CodepointRange.CODEPOINT_MAX);
+                    int value = rand.nextInt(IntRange.UNICODE_BOUNDS.upper);
                     builder1.add(value);
                     builder2.add(value);
                 }
@@ -249,8 +215,8 @@ public class BitsetCodepointRangeTest {
                 buildDuration += (ende - start);
 
                 start = System.nanoTime();
-                final CodepointRange bs1 = builder1.build();
-                final CodepointRange bs2 = builder2.build();
+                final IntRange bs1 = builder1.build();
+                final IntRange bs2 = builder2.build();
                 ende = System.nanoTime();
                 newDuration += (ende - start);
 
@@ -260,7 +226,7 @@ public class BitsetCodepointRangeTest {
                 equalsDuration += (ende - start);
                 if (!isEqual) {
                     pln(String.format("\ni=%d: CodepointSets NOT equal", i));
-                    if (builder1.getSet().equals(builder2.getSet())) {
+                    if (builder1.underlyingSet().equals(builder2.underlyingSet())) {
                         pln("... but underlying sorted sets ARE equal.");
                     } else {
                         pln("... and underlying sorted sets are different.");
@@ -299,20 +265,20 @@ public class BitsetCodepointRangeTest {
         long start, ende;
 
         start = System.currentTimeMillis();
-        final BitsetCodepointRange.Builder builder = new BitsetCodepointRange.Builder();
-        final int setsize = 100000;
+        final IntRangeBuilder builder = IntRangeBuilder.withUnicodeBounds();
+        final int setsize = 1000;
         final Random rand = new Random();
         for (int i = 0; i < setsize; i++) {
-            builder.add(rand.nextInt(CodepointRange.CODEPOINT_MAX));
+            builder.add(rand.nextInt(IntRange.UNICODE_BOUNDS.upper));
         }
-        CodepointRange bs = builder.build();
+        IntRange bs = builder.build();
         ende = System.currentTimeMillis();
         System.out.println(String.format("Timing1: build a %d codepoints random bitset in %d msec", bs.size(), (ende - start)));
 
-        final int lookups = 10000000;
+        final int lookups = 100000;
         start = System.currentTimeMillis();
         for (int i = 0; i < lookups; i++) {
-            bs.contains(rand.nextInt(CodepointRange.CODEPOINT_MAX));
+            bs.contains(rand.nextInt(IntRange.UNICODE_BOUNDS.upper));
         }
         ende = System.currentTimeMillis();
         System.out.println(String.format("Timing2: Do %d random lookups in %d msec (%d lookups /sec)"
@@ -322,7 +288,7 @@ public class BitsetCodepointRangeTest {
     @Test
     public void testIterator_1() {
         List<Integer> values = Arrays.asList(new Integer[]{1, 3, 6, 7, 10, 14, 15, 90});
-        CodepointRange cps = BitsetCodepointRange.of(values);
+        IntRange cps = IntRangeBuilder.withUnicodeBounds().addAll(values).build();
         assertEquals(values.size(), cps.size());
         Iterator<Integer> listIter = values.iterator();
         Iterator<Integer> cpsIter = cps.iterator();

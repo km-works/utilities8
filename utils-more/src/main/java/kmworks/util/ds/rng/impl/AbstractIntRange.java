@@ -12,16 +12,19 @@
  *  details.
  *
  *  You should have received a copy of the GNU General Public License
- *  along with this distribution. If not, see <http://www.gnu.org/licenses/>.
+ *  along withBounds this distribution. If not, see <http://www.gnu.org/licenses/>.
  */
 package kmworks.util.ds.rng.impl;
 
+import com.google.common.collect.ImmutableSortedSet;
 import kmworks.util.ObjectUtil;
 import kmworks.util.base.Equals;
+//import kmworks.util.collect.ImmutableSortedSet;
 import kmworks.util.ds.rng.IntRange;
 import kmworks.util.lambda.Function0;
 
 import java.util.Iterator;
+import java.util.SortedSet;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static kmworks.util.StringPool.OUT_OF_RANGE_MSG;
@@ -33,6 +36,7 @@ import static kmworks.util.StringPool.OUT_OF_RANGE_MSG;
  */
 abstract class AbstractIntRange implements IntRange, Equals {
 
+    private final Bounds bounds;
     private final int first;
     private final int last;
     private final int size;
@@ -40,12 +44,15 @@ abstract class AbstractIntRange implements IntRange, Equals {
 
 
     AbstractIntRange(Initializer initializer) {
-        this.first = initializer.getFirst();
-        this.last = initializer.getLast();
+        this.bounds = initializer.getBounds();
+        this.first = checkBounds(initializer.getFirst());
+        this.last = checkBounds(initializer.getLast());
         this.size = initializer.getSize();
         this.initializer = initializer.get();
     }
 
+    @Override
+    public final Bounds bounds() { return bounds; }
 
     @Override
     public final int first() {
@@ -71,15 +78,15 @@ abstract class AbstractIntRange implements IntRange, Equals {
         return obj != null && getClass() == obj.getClass();
     }
 
-
-    boolean memberEquals(IntRange a, IntRange b) {
-        if (a.size() != b.size()) return false;
-        Iterator<Integer> aIter = a.iterator(), bIter = b.iterator();
-        while (aIter.hasNext() && bIter.hasNext()) {
-            if (aIter.next() != bIter.next()) return false;
-        }
-        return true;
+    @Override
+    public SortedSet<Integer> asSet() {
+        return new ImmutableSortedSet.Builder<Integer>(IntRange.COMPARATOR).addAll(iterator()).build();
     }
+
+    int checkBounds(Integer value) {
+        return IntRange.checkBounds(value, bounds);
+    }
+
 
     int hash(Iterator<Integer> iter) {
         int result = 1;
@@ -89,10 +96,6 @@ abstract class AbstractIntRange implements IntRange, Equals {
             result = (result * ObjectUtil.KNUTH_CONST) ^ key;
         }
         return result;
-    }
-
-    public boolean isInRange(int value, IntRange rng) {
-        return value >= rng.first() && value <= rng.last();
     }
 
     protected static int countMembersBetween(IntRange range, int from, int to) {
@@ -124,6 +127,7 @@ abstract class AbstractIntRange implements IntRange, Equals {
     }
 
     interface Initializer {
+        Bounds getBounds();
         int getFirst();
         int getLast();
         int getSize();
