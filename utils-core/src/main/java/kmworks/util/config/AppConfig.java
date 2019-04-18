@@ -5,7 +5,6 @@
 package kmworks.util.config;
 
 import static com.google.common.base.Preconditions.*;
-import com.google.common.base.Strings;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.io.File;
@@ -22,7 +21,7 @@ import javax.annotation.Nonnull;
 public class AppConfig {
 
     private static final String PATH_ENV = "environment";
-    private static final String MSG_ENV_NOT_SET = "Config property 'environment' not set";
+    private static final String MSG_ENV_NOT_SET = "Mandatory config property 'environment' not set";
     private static final String MSG_FILE_NOT_FOUND = "Config file not found";
 
     private static final AppConfig INSTANCE = new AppConfig();
@@ -33,30 +32,29 @@ public class AppConfig {
 
     public AppConfig() {
         defaultConfig = ConfigFactory.load();
-        String defaultEnv = defaultConfig.hasPath(PATH_ENV) ? defaultConfig.getString(PATH_ENV) : null;
-        if (Strings.isNullOrEmpty(defaultEnv)) {
+        if (defaultConfig.hasPath(PATH_ENV)) {
+            activeEnv = defaultConfig.getString(PATH_ENV);
+        } else {
             throw new IllegalArgumentException(MSG_ENV_NOT_SET);
         }
-        this.activeEnv = defaultEnv;
         effectiveConfig = defaultConfig.getConfig(activeEnv);
     }
 
-    public static void overrideWith(Config other) {
-        String newEnv = checkNotNull(other).getString(PATH_ENV);
-        if (Strings.isNullOrEmpty(newEnv)) {
+    public static void overrideWith(@Nonnull final Config other) {
+        if (checkNotNull(other).hasPath(PATH_ENV)) {
+            INSTANCE.activeEnv = other.getString(PATH_ENV);
+        } else {
             throw new IllegalArgumentException(MSG_ENV_NOT_SET);
         }
-        INSTANCE.activeEnv = newEnv;
         INSTANCE.effectiveConfig = other.getConfig(INSTANCE.activeEnv).withFallback(INSTANCE.effectiveConfig);
     }
 
-    public static void overrideWith(File configFile) {
-        if (configFile != null) {
-            if (!configFile.exists()) {
-                throw new IllegalArgumentException(MSG_FILE_NOT_FOUND + ": " + configFile.getAbsolutePath());
-            }
-            AppConfig.overrideWith(ConfigFactory.parseFile(configFile));
+    public static void overrideWith(@Nonnull final File configFile) {
+        if (!checkNotNull(configFile).exists() || !configFile.canRead()) {
+            throw new IllegalArgumentException(MSG_FILE_NOT_FOUND + ": " + configFile.getAbsolutePath());
         }
+        AppConfig.overrideWith(ConfigFactory.parseFile(configFile));
+
     }
 
     public static PropertyMap startsWith(@Nonnull final String prefix) {

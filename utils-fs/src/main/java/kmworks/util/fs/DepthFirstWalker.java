@@ -32,8 +32,14 @@ import kmworks.util.lambda.Predicate2;
 import kmworks.util.lambda.Runnable1;
 
 /**
- *
  * @author cpl
+ * 
+ * TODO:
+ *  - base walkers on interface/abstract class
+ *  - impl width-first walker
+ *  - impl walking/file-procssing directed by metadata placed in metadata-files found in walked directories (like .htaccess)
+ *    (to be specified!!!)
+ *  - impl builder pattern
  */
 public final class DepthFirstWalker<T> {
     

@@ -28,7 +28,7 @@ package kmworks.util.base;
  *
  * @param <T> the type of results supplied by this supplier
  *
- * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * @author Christian P. Lerch (christian.p.lerch[at]gmail.com)
  */
 @FunctionalInterface
 public interface Supplier<T> {

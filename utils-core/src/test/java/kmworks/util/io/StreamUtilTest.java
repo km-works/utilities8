@@ -84,7 +84,7 @@ public class StreamUtilTest {
         System.out.println("Unoptimized time: " + (unoptimizedTime/iterations)/1000 + " µsec");
         System.out.println("  Optimized time: " + (optimizedTime/iterations)/1000 + " µsec");
         System.out.println("     Buffer Size: " + StreamUtil.bufferUsed);
-        System.out.println("      Speed gain: " + (new Double(unoptimizedTime)/optimizedTime));
+        System.out.println("      Speed gain: " + (unoptimizedTime/optimizedTime));
   }
 
    /**
@@ -92,17 +92,16 @@ public class StreamUtilTest {
      * be serialized.
      */
     private static Object unoptimizedDeepCopy(Object orig) throws Exception {
-        Object obj = null;
         // Write the object out to a byte array
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
-        ObjectOutputStream out = new ObjectOutputStream(bos);
-        out.writeObject(orig);
-        out.flush();
-        out.close();
+        try (ObjectOutputStream out = new ObjectOutputStream(bos)) {
+            out.writeObject(orig);
+            out.flush();
+        }
         // Make an input stream from the byte array and read
         // a copy of the object back in.
         ObjectInputStream in = new ObjectInputStream(new ByteArrayInputStream(bos.toByteArray()));
-        obj = in.readObject();
+        Object obj = in.readObject();
         return obj;
     }
 }

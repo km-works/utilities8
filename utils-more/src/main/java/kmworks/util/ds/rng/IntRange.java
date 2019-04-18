@@ -46,8 +46,10 @@ public interface IntRange extends IntPredicate, SortedIterable<Integer>, Compara
         return value >= rng.first() && value <= rng.last();
     }
 
+    @Override
     boolean equals(Object obj);
 
+    @Override
     int hashCode();
 
     SortedSet<Integer> asSet();
@@ -60,8 +62,9 @@ public interface IntRange extends IntPredicate, SortedIterable<Integer>, Compara
         return COMPARATOR;
     }
 
+    @Override
     default int compareTo(IntRange other) {
-        return new Integer(this.first()).compareTo(other.first());
+        return Integer.valueOf(first()).compareTo(other.first());
     }
 
     static boolean memberEquals(IntRange a, IntRange b) {

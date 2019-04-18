@@ -22,7 +22,7 @@ import com.google.common.collect.PeekingIterator;
 import kmworks.util.ObjectUtil;
 
 /**
- *
+ * A contigous (no holes) range of Integers.
  * @author cpl
  */
 public final class CompactIntRange extends AbstractIntRange {

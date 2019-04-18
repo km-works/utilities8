@@ -36,6 +36,8 @@ package kmworks.util;
 import com.google.common.base.Joiner;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -900,6 +902,16 @@ public class ClassUtil {
      */
     public static boolean isInnerClass(final Class<?> cls) {
         return cls != null && cls.getEnclosingClass() != null;
+    }
+    
+    /**
+     * Get generic type of some Object.
+     * Must be called in a constructor.
+     * @param obj
+     * @return 
+     */
+    public static Type getGenericType(Object obj) {
+        return ((ParameterizedType) obj.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
     }
 
     // Class loading

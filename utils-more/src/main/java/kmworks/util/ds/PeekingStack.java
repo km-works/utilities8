@@ -18,12 +18,17 @@
  */
 package kmworks.util.ds;
 
+import kmworks.util.ds.impl.PeekingArrayListStack;
+
 /**
  *
- * * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * * @author Christian P. Lerch (christian.p.lerch[at]gmail.com)
  * @param <T>
  */
-public interface PeekingStack<T> {
+public interface PeekingStack<T> extends Iterable<T> {
+    
+  static <T> PeekingStack<T> of() { return new PeekingArrayListStack<>(); }
+  static <T> PeekingStack<T> of(final int size) { return new PeekingArrayListStack<>(size); }
 
   /**
    *  Push one item onto stack and increment item count

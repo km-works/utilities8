@@ -1,87 +1,84 @@
 /*
- * Copyright (C) 2005-2016 Christian P. Lerch <christian.p.lerch[at]gmail.com>
- *  
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
  */
 package kmworks.util.tuple;
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-import kmworks.util.ObjectUtil;
-import kmworks.util.iter.EmptyIterator;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
- * A singleton object that represents the empty tuple {@code ()}.
- * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ *
+ * @author cpl
  */
-public final class Tuple extends Product {
+public abstract class Tuple {
+    
+    public abstract int size();
+    public abstract int index(String typeName);
+    public abstract String name(int i);
+    public abstract <T> T value(int i);
+    public abstract Class<?> type(int i);
+    public abstract Class<?> type(String name);
+    
+    @SuppressWarnings("unchecked")
+    public <T> T value(String typeName) {
+        return (T) value(index(typeName));
+    }
+    
+    public List<String> names() {
+        final ImmutableList.Builder<String> builder = new ImmutableList.Builder<>();
+        for (int i=0; i<size(); i++) {
+            builder.add(name(i));
+        }
+        return builder.build();
+    }
 
-  private static final long serialVersionUID = 1L;
-  
-  // The empty tuple singleton
-  private static final Tuple EMPTY_TUPLE = new Tuple();
-  
-  private Tuple() {}
+    public List<Object> values() {
+        final ImmutableList.Builder<Object> builder = new ImmutableList.Builder<>();
+        for (int i=0; i<size(); i++) {
+            builder.add(value(i));
+        }
+        return builder.build();
+    }
 
-  /**
-   * Return the empty tuple singleton.
-   * @return 
-   */
-  public static Tuple of() {
-    return EMPTY_TUPLE;
-  }
-  
-  /**
-   * Create a new Tuple1 from the given value.
-   * (allows the types to be inferred)
-   */
-  public static <T1, S1 extends T1> Tuple1<T1> of(S1 v1) {
-    return new Tuple1(v1);
-  }
-  
-  /**
-   * Create a new Tuple2 from given values.
-   * (allows the types to be inferred)
-   */
-  public static <T1, T2, S1 extends T1, S2 extends T2> Tuple2<T1, T2> of(S1 v1, S2 v2) {
-    return new Tuple2(v1, v2);
-  }
-  
-  @Override public int arity() {
-    return 0;
-  }
+    public Map<String, Object> asMap() {
+        final ImmutableMap.Builder builder = new ImmutableMap.Builder<>();
+        for (int i=0; i<size(); i++) {
+            builder.put(name(i), value(i));
+        }
+        return builder.build();
+    }
 
-  @Override public Object element(int index) {
-    throw new NoSuchElementException("The empty tuple has no elements");
-  }
-  
-  @Override public Iterator<Object> iterator() {
-    return EmptyIterator.of();
-  }
-  
-  @Override public int hashCode() {
-    return ObjectUtil.hash(Tuple.class);
-  }
-  
-  @Override public boolean equals(Object that) {
-    // Since there is only one instance of this class, the EMPTY_TUPLE singleton,
-    // we just need to check for identity
-    return this == that;
-  }
-  
-  @Override public String toString() {
-    return String.format("#()");
-  }
-  
+    public static Tuple of() {
+        return builder().setValues().build();
+    }
+    
+    public static Tuple of(Object... values) {
+        List<Class<?>> types = Arrays.asList(values).stream()
+                .map(v -> v == null ? Object.class : v.getClass())
+                .collect(Collectors.toList());
+        return new TupleImpl.Builder().setTypes(types)
+                .setValues(values)
+                .build();
+    }
+
+    public static Builder builder(Class<?>... types) {    
+        return new TupleImpl.Builder().setTypes(Arrays.asList(types));
+    }
+    
+    public abstract static class Builder {
+        
+        Builder() {}
+        
+        public abstract Builder setTypes(List<Class<?>> types);
+        public abstract Builder setValues(Object... values);
+        public abstract Builder setNames(String... names);
+        public abstract Tuple build();
+    }
+    
 }

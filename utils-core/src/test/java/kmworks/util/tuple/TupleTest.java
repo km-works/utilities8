@@ -16,7 +16,6 @@
  */
 package kmworks.util.tuple;
 
-import java.io.Serializable;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -25,20 +24,28 @@ import static org.junit.Assert.*;
  * @author Christian P. Lerch
  */
 public class TupleTest {
-  
-  public TupleTest() {
-  }
 
-  @Test
-  public void testEquals() {
-    Tuple t1 = Tuple.of();
-    Tuple t2 = Tuple.of();
-    assertEquals(t1, t2);
-    assertTrue(t1 == t2);
-  }
-  
-  @Test public void testSerializableNull() {
-    assertFalse(null instanceof Serializable);
-  }
+    public TupleTest() {
+    }
+
+    /*
+      Equality
+    */
+
+    @Test
+    public void testEquals() {
+        Tuple t1 = Tuple.of();
+        Tuple t2 = Tuple.of();
+        assertEquals(t1, t2);
+    }
+
+    @Test
+    public void testNullValues() {
+        final Tuple t1 = Tuple.builder(Object.class).setValues((Object) null).build();
+        final Tuple t2 = Tuple.builder(Object.class).setValues((Object) null).build();
+        assertEquals(t1, t2);
+        assertEquals(t1.hashCode(), t2.hashCode());
+        assertNotEquals(t1, Tuple.builder().build());
+    }
 
 }

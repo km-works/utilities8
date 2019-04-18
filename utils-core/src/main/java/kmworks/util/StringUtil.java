@@ -77,8 +77,11 @@ public final class StringUtil {
      * Checks whether the given CharSequence is not null or empty and contains any non-whitespace characters. Examples:
      * <p>
      * <pre class="code">
-     * StringUtils.hasText(null) = false StringUtils.hasText("") = false StringUtils.hasText(" ") = false
-     * StringUtils.hasText("12345") = true StringUtils.hasText(" 12345 ") = true
+     * StringUtils.hasText(null) = false 
+     * StringUtils.hasText("") = false 
+     * StringUtils.hasText(" ") = false
+     * StringUtils.hasText("12345") = true 
+     * StringUtils.hasText(" 12345 ") = true
      * </pre>
      *
      * @param cs the CharSequence to check (may be {@code null})
@@ -126,22 +129,29 @@ public final class StringUtil {
     public static String emptyToNull(@Nullable final CharSequence cs) {
         return isNullOrEmpty(cs) ? null : cs.toString();
     }
-    
+
+    /**
+     * Apply the given function to the String in a nullsafe way.
+     *
+     * @param string
+     * @param fn
+     * @return null if string is null, the function result otherwise
+     */
     @Nullable
-    public static String nullsafe(@Nullable String s, @Nonnull Function<String, String> fn) {
-        return s == null ? s : fn.apply(s);
+    public static String applyNullsafe(@Nullable String string, @Nonnull Function<String, String> fn) {
+        return string == null ? null : fn.apply(string);
     }
 
     /**
-     * Returns the given CharSequence if it is neither null nor empty, the given defaultValue otherwise.
+     * Returns the given CharSequence if it is not null, the given defaultValue otherwise.
      *
      * @param str
      * @param defaultValue
      * @return
      */
     @Nonnull
-    public static String nvl(@Nullable final CharSequence str, @Nullable final CharSequence defaultValue) {
-        return !isNullOrEmpty(str) ? nullToEmpty(str) : nullToEmpty(defaultValue);
+    public static String nvl(@Nullable final String str, @Nonnull final String defaultValue) {
+        return str == null ? defaultValue : str;
     }
     
     public static String trim(@Nullable String s) {
@@ -178,10 +188,6 @@ public final class StringUtil {
         return nnString.substring(len - endIdx, len - beginIdx);
     }
 
-    public static int countNewlines(@Nullable final String str) {
-        return countOccurencesOf(str, NEWLINE);
-    }
-
     public static int countOccurencesOf(@Nullable final String str, @Nullable final String sub) {
         if (isNullOrEmpty(str) || isNullOrEmpty(sub)) {
             return 0;
@@ -196,6 +202,10 @@ public final class StringUtil {
         return count;
     }
 
+    public static int countNewlines(@Nullable final String str) {
+        return countOccurencesOf(str, NEWLINE);
+    }
+
     /**
      * Delete any given character in a String.
      *
@@ -204,10 +214,10 @@ public final class StringUtil {
      * @return the resulting String
      */
     public static String deleteAny(String inString, String charsToDelete) {
-        if (!hasLength(inString) || !hasLength(charsToDelete)) {
+        if (isNullOrEmpty(inString) || isNullOrEmpty(charsToDelete)) {
             return inString;
         }
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder(inString.length());
         for (int i = 0; i < inString.length(); i++) {
             char c = inString.charAt(i);
             if (charsToDelete.indexOf(c) == -1) {
@@ -252,7 +262,8 @@ public final class StringUtil {
     }
     
     /*
-   * Join a list of strings into a single string
+     * Join a list of strings into a single string
+     *  TODO: use Guava Joiner
      */
     public static String join(final Iterable<String> sl) {
         return join(sl, EMPTY_STRING);
@@ -285,8 +296,8 @@ public final class StringUtil {
         }
     }
 
-    public static String fmtIntegerZeroPadded(final int number, final int digits) {
-        final String fmtString = "%1$0" + digits + "d";
+    public static String fmtIntegerZeroPadded(final int number, final int totalWidth) {
+        final String fmtString = "%1$0" + totalWidth + "d";
         return String.format(fmtString, number);
     }
 
@@ -303,8 +314,8 @@ public final class StringUtil {
         return sdf.format(dateTime);
     }
 
-    public static String fmtMilliseconds(final long msec, final String simpleDateTimeFormat) {
-        return fmtDateTime(new Date(msec), simpleDateTimeFormat);
+    public static String fmtDateTime(final long milliseconds, final String simpleDateTimeFormat) {
+        return fmtDateTime(new Date(milliseconds), simpleDateTimeFormat);
     }
 
     /**
@@ -316,24 +327,21 @@ public final class StringUtil {
      * @return normalized version of str.
      */
     public static String normalizeWhitespace(final String str) {
-        if (isNullOrEmpty(str)) {
-            return str;
-        }
-        final StringBuilder buf = new StringBuilder();
-        final CharacterIterator iter = new StringCharacterIterator(str);
-        boolean inWhitespace = false; // Flag set if we're in a second consecutive whitespace
+        final StringBuilder sb = new StringBuilder();
+        final CharacterIterator iter = new StringCharacterIterator(nullToEmpty(str));
+        boolean inWhitespace = false; // Set if we're in a consecutive whitespace after the first one
         for (char c = iter.first(); c != CharacterIterator.DONE; c = iter.next()) {
             if (Character.isWhitespace(c)) {
                 if (!inWhitespace) {
-                    buf.append(' ');
+                    sb.append(' ');
                     inWhitespace = true;
                 }
             } else {
                 inWhitespace = false;
-                buf.append(c);
+                sb.append(c);
             }
         }
-        return buf.toString();
+        return sb.toString();
     }
 
     public static String removeQuotes(final String text) {
@@ -360,7 +368,7 @@ public final class StringUtil {
 
     @Nullable
     public static String sqlEscSQ(@Nullable final String str) {
-        return nullsafe(str, s -> s.replaceAll(SQUOTE, SQUOTE+SQUOTE));
+        return applyNullsafe(str, s -> s.replaceAll(SQUOTE, SQUOTE+SQUOTE));
     }
     
     @Nonnull
@@ -368,6 +376,15 @@ public final class StringUtil {
         return str == null ? "null" : SQUOTE + sqlEscSQ(str) + SQUOTE;
     }
 
+    @Nonnull
+    public static String sqlValue(@Nullable final Object value) {
+        if (value == null) {
+            return "null";
+        } else {
+            return value instanceof String ? sqlTextValue((String)value) : value.toString();
+        }
+    }
+        
     public static String sanitizeFilenameString(final String path) {
         String result = path;
         result = result.replaceAll("ö", "oe");
@@ -404,6 +421,45 @@ public final class StringUtil {
     result = result.replaceAll("@", "_");
          */
         return result;
+    }
+
+    /**
+     * Split a String at the first occurrence of the delimiter. Does not include the delimiter in the result.
+     *
+     * @param toSplit the string to split
+     * @param delimiter to split the string up with
+     * @return a two element array with index 0 being before the delimiter, and index 1 being after the delimiter
+     * (neither element includes the delimiter); or {@code null} if the delimiter wasn't found in the given input String
+     */
+    public static String[] split(String toSplit, String delimiter) {
+        if (!hasLength(toSplit) || !hasLength(delimiter)) {
+            return null;
+        }
+        int offset = toSplit.indexOf(delimiter);
+        if (offset < 0) {
+            return null;
+        }
+        String beforeDelimiter = toSplit.substring(0, offset);
+        String afterDelimiter = toSplit.substring(offset + delimiter.length());
+        return new String[]{beforeDelimiter, afterDelimiter};
+    }
+
+    public static @Nullable String getFileExt(@Nullable final String fileName) {
+        if (isNullOrEmpty(fileName)) {
+            return null;
+        }
+        assert fileName != null;
+        final int pos = fileName.lastIndexOf(DOT_CH);
+        return (pos <= 0 ? null : fileName.substring(pos + 1));
+    }
+
+    public static @Nullable String stripFileExt(@Nullable final String fileName) {
+        if (isNullOrEmpty(fileName)) {
+            return null;
+        }
+        assert fileName != null;
+        final int pos = fileName.lastIndexOf(DOT_CH);
+        return (pos < 0 ? fileName : fileName.substring(0, pos));
     }
 
     //---------------------------------------------------------------------
@@ -551,28 +607,7 @@ public final class StringUtil {
         set.addAll(Arrays.asList(array));
         return toStringArray(set);
     }
-
-    /**
-     * Split a String at the first occurrence of the delimiter. Does not include the delimiter in the result.
-     *
-     * @param toSplit the string to split
-     * @param delimiter to split the string up with
-     * @return a two element array with index 0 being before the delimiter, and index 1 being after the delimiter
-     * (neither element includes the delimiter); or {@code null} if the delimiter wasn't found in the given input String
-     */
-    public static String[] split(String toSplit, String delimiter) {
-        if (!hasLength(toSplit) || !hasLength(delimiter)) {
-            return null;
-        }
-        int offset = toSplit.indexOf(delimiter);
-        if (offset < 0) {
-            return null;
-        }
-        String beforeDelimiter = toSplit.substring(0, offset);
-        String afterDelimiter = toSplit.substring(offset + delimiter.length());
-        return new String[]{beforeDelimiter, afterDelimiter};
-    }
-
+    
     /*
      * Take an array of Strings and split each element based on the given delimiter. A {@code Properties} instance is then
      * generated, with the left of the delimiter providing the key, and the right of the delimiter providing the value.
@@ -840,24 +875,6 @@ public final class StringUtil {
         return StringUtil.arrayToCsv(arr, COMMA);
     }
 
-    public static @Nullable String getFileExt(@Nullable final String fileName) {
-        if (isNullOrEmpty(fileName)) {
-            return null;
-        }
-        assert fileName != null;
-        final int pos = fileName.lastIndexOf(DOT_CH);
-        return (pos <= 0 ? null : fileName.substring(pos + 1));
-    }
-
-    public static @Nullable String stripFileExt(@Nullable final String fileName) {
-        if (isNullOrEmpty(fileName)) {
-            return null;
-        }
-        assert fileName != null;
-        final int pos = fileName.lastIndexOf(DOT_CH);
-        return (pos < 0 ? fileName : fileName.substring(0, pos));
-    }
-    
     /**
      * Convert a String to or from various other representations
      */

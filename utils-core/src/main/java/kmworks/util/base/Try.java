@@ -18,7 +18,7 @@ package kmworks.util.base;
 
 /**
  *
- * @author Christian P. Lerch <christian.p.lerch[at]gmail.com>
+ * @author Christian P. Lerch
  */
 public abstract class Try<T> {
   

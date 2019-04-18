@@ -19,7 +19,6 @@ package kmworks.util.fs;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import kmworks.util.fs.attr.FileAttributes;
-import kmworks.util.lambda.Runnable1;
 import kmworks.util.misc.UUIDGenerator;
 import org.junit.Test;
 
@@ -49,23 +48,25 @@ public class DepthFirstWalkerTest {
     
     @Test
     public void testSetFileID() {
+        // Walk 
         Path rootDir = Paths.get("C:/_/data/d-a-c/knowledge/IT/TOPICS/SW-PROD");
         
-        Runnable1<Path> worker = (Path path) -> { 
+        DepthFirstWalker<Void> walker = new DepthFirstWalker<>(rootDir);
+        // dir-name starts with alphanumeric char
+        walker.dirsInclude((path, level) -> path.getFileName().toString().matches("\\p{Alnum}.*"));
+        // first-level dirs only
+        walker.dirsExclude((path, level) -> level > 1); 
+        // no files
+        walker.filesExclude((path, level) -> level >= 1);
+
+       walker.walk((Path path) -> { // type Runnable1<Path> worker
             FileAttributes fileAttrs = FileAttributes.of(path);
             if (!fileAttrs.exists("FILE_ID")) {
                 fileAttrs.set("FILE_ID", UUIDGenerator.generate().toString());
             }
-            fileAttrs.set("IS_A", path.getParent().getFileName().toString());
+            fileAttrs.set("IS_A", path.getParent().getFileName().toString() /* == "SW-PROD" */);
             fileAttrs.close();
-        };
-        
-        DepthFirstWalker<Void> walker = new DepthFirstWalker<>(rootDir);
-        walker.dirsInclude((path, level) -> path.getFileName().toString().matches("\\p{Alnum}.*"));
-        walker.dirsExclude((path, level) -> level > 1);
-        walker.filesExclude((path, level) -> level >= 1);
-
-        walker.walk(worker);
+        });
         
         printStats(walker.statistics());
     }
@@ -76,7 +77,12 @@ public class DepthFirstWalkerTest {
         String fromAttrName = "WWW_HOME";
         String toAttrName = "WWW";
         
-        Runnable1<Path> worker = (Path path) -> { 
+        DepthFirstWalker<Void> walker = new DepthFirstWalker<>(rootDir);
+        walker.dirsInclude((path, level) -> path.getFileName().toString().matches("\\p{Alnum}.*"));
+        walker.dirsExclude((path, level) -> level > 1);
+        walker.filesExclude((path, level) -> level >= 1);
+
+        walker.walk((Path path) -> { // type Runnable1<Path> worker
             FileAttributes fileAttrs = FileAttributes.of(path);
             if (fileAttrs.exists(fromAttrName)) {
                 String homeUrl = fileAttrs.get(fromAttrName);
@@ -84,14 +90,7 @@ public class DepthFirstWalkerTest {
                 fileAttrs.set(toAttrName, homeUrl);
             }
             fileAttrs.close();
-        };
-        
-        DepthFirstWalker<Void> walker = new DepthFirstWalker<>(rootDir);
-        walker.dirsInclude((path, level) -> path.getFileName().toString().matches("\\p{Alnum}.*"));
-        walker.dirsExclude((path, level) -> level > 1);
-        walker.filesExclude((path, level) -> level >= 1);
-
-        walker.walk(worker);
+        });
         
         printStats(walker.statistics());
     }
